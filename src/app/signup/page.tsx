@@ -11,7 +11,6 @@ const SignUpPage = () => {
     firstName: '',
     lastName: '',
     email: '',
-    role: 'learner',
     agreeToTerms: false
   });
 
@@ -85,7 +84,7 @@ const SignUpPage = () => {
             firstName: formData.firstName,
             lastName: formData.lastName,
             email: formData.email,
-            role: formData.role,
+            role: 'learner',
             walletId: connectedWallet,
           }),
         });
@@ -98,7 +97,6 @@ const SignUpPage = () => {
             firstName: '',
             lastName: '',
             email: '',
-            role: 'learner',
             agreeToTerms: false
           });
         } else {
@@ -224,24 +222,6 @@ const SignUpPage = () => {
                   placeholder="john@example.com"
                 />
                 {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email}</p>}
-              </div>
-            </div>
-
-            <div>
-              <label htmlFor="role" className="block text-sm font-medium text-gray-700">
-                Account Type
-              </label>
-              <div className="mt-1">
-                <select
-                  id="role"
-                  name="role"
-                  value={formData.role}
-                  onChange={(e) => setFormData(prev => ({ ...prev, role: e.target.value }))}
-                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                >
-                  <option value="learner">Learner</option>
-                  <option value="employer">Organization/Employer</option>
-                </select>
               </div>
             </div>
 
