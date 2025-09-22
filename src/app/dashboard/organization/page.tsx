@@ -14,7 +14,7 @@ const OrganizationDashboard = () => {
       if (!isAuthenticated) {
         // Not authenticated, redirect to home
         router.push('/');
-      } else if (!hasRole('employer') && !hasRole('admin')) {
+      } else if (!hasRole('organization') && !hasRole('admin')) {
         // Wrong role, redirect to learner dashboard if they're a learner
         if (hasRole('learner')) {
           router.push('/dashboard/learner');
@@ -36,7 +36,7 @@ const OrganizationDashboard = () => {
     );
   }
 
-  if (!isAuthenticated || (!hasRole('employer') && !hasRole('admin'))) {
+  if (!isAuthenticated || (!hasRole('organization') && !hasRole('admin'))) {
     return null; // Will redirect in useEffect
   }
 

@@ -28,7 +28,7 @@ const Navbar = () => {
   const getDashboardLink = () => {
     if (user?.role === 'learner') {
       return '/dashboard/learner';
-    } else if (user?.role === 'employer' || user?.role === 'admin') {
+    } else if (user?.role === 'organization' || user?.role === 'admin') {
       return '/dashboard/organization';
     }
     return '/';
