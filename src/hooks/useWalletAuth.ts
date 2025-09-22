@@ -12,6 +12,7 @@ interface User {
   role: string;
   walletId: string;
   createdAt: string;
+  organizationName?: string;
 }
 
 export const useWalletAuth = () => {

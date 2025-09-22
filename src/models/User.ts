@@ -29,6 +29,79 @@ const userSchema = new mongoose.Schema({
     required: false,
     trim: true,
   },
+  // Common profile fields
+  phone: {
+    type: String,
+    trim: true,
+  },
+  bio: {
+    type: String,
+    trim: true,
+  },
+  // Learner-specific fields
+  skills: [{
+    type: String,
+    trim: true,
+  }],
+  experience: {
+    type: String,
+    trim: true,
+  },
+  education: {
+    type: String,
+    trim: true,
+  },
+  location: {
+    type: String,
+    trim: true,
+  },
+  githubProfile: {
+    type: String,
+    trim: true,
+  },
+  linkedinProfile: {
+    type: String,
+    trim: true,
+  },
+  // Organization-specific fields
+  organizationName: {
+    type: String,
+    trim: true,
+  },
+  organizationType: {
+    type: String,
+    enum: ['university', 'college', 'training-institute', 'certification-body', 'company', 'non-profit', 'government', 'other'],
+    trim: true,
+  },
+  website: {
+    type: String,
+    trim: true,
+  },
+  description: {
+    type: String,
+    trim: true,
+  },
+  industry: {
+    type: String,
+    trim: true,
+  },
+  size: {
+    type: String,
+    enum: ['1-10', '11-50', '51-200', '201-500', '501-1000', '1000+'],
+    trim: true,
+  },
+  address: {
+    type: String,
+    trim: true,
+  },
+  establishedYear: {
+    type: String,
+    trim: true,
+  },
+  certificationAuthority: {
+    type: Boolean,
+    default: false,
+  },
   createdAt: {
     type: Date,
     default: Date.now,

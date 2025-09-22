@@ -2,12 +2,12 @@
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
 import { useWalletAuth } from '@/hooks/useWalletAuth';
+import Navbar from '@/components/Navbar';
 
 const LearnerDashboard = () => {
   const router = useRouter();
-  const { user, isAuthenticated, hasRole, isLoading, disconnect } = useWalletAuth();
+  const { user, isAuthenticated, hasRole, isLoading } = useWalletAuth();
 
   useEffect(() => {
     if (!isLoading) {
@@ -41,47 +41,11 @@ const LearnerDashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white shadow-sm border-b border-gray-100">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center">
-              <Link href="/" className="flex items-center">
-                <div className="bg-gradient-to-r from-blue-600 to-purple-600 w-8 h-8 rounded-lg flex items-center justify-center mr-3">
-                  <span className="text-white font-bold text-lg">C</span>
-                </div>
-                <span className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                  Credzi
-                </span>
-              </Link>
-            </div>
-            
-            <div className="flex items-center space-x-4">
-              <span className="text-sm text-gray-600">
-                Welcome, {user?.firstName || 'Learner'}
-              </span>
-              <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                <span className="text-blue-600 font-medium text-sm">
-                  {user?.firstName?.charAt(0) || 'L'}
-                </span>
-              </div>
-              <button
-                onClick={disconnect}
-                className="text-sm text-gray-500 hover:text-red-600 transition-colors"
-                title="Disconnect Wallet"
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                </svg>
-              </button>
-            </div>
-          </div>
-        </div>
-      </header>
-
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <>
+      <Navbar />
+      <div className="min-h-screen bg-gray-50">
+        {/* Main Content */}
+        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Welcome Section */}
         <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
           <h1 className="text-2xl font-bold text-gray-900 mb-2">
@@ -173,8 +137,9 @@ const LearnerDashboard = () => {
             <p className="text-sm text-gray-400">Start learning to see your progress here</p>
           </div>
         </div>
-      </main>
-    </div>
+        </main>
+      </div>
+    </>
   );
 };
 
