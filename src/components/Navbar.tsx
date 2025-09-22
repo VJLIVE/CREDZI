@@ -58,9 +58,9 @@ const Navbar = () => {
               <button className="text-gray-600 hover:text-blue-600 px-4 py-2 text-sm font-medium transition-colors">
                 Sign In
               </button>
-              <button className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-2 rounded-lg text-sm font-medium hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-md hover:shadow-lg">
+              <Link href="/signup" className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-2 rounded-lg text-sm font-medium hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-md hover:shadow-lg">
                 Sign Up
-              </button>
+              </Link>
             </div>
           </div>
 
@@ -117,9 +117,13 @@ const Navbar = () => {
               <button className="text-gray-600 hover:text-blue-600 block px-3 py-2 text-base font-medium transition-colors w-full text-left">
                 Sign In
               </button>
-              <button className="w-full mt-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-2 rounded-lg text-sm font-medium hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-md hover:shadow-lg">
+              <Link 
+                href="/signup" 
+                className="w-full mt-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-2 rounded-lg text-sm font-medium hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-md hover:shadow-lg block text-center"
+                onClick={() => setIsMenuOpen(false)}
+              >
                 Sign Up
-              </button>
+              </Link>
             </div>
           </div>
         )}
