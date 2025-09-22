@@ -40,7 +40,7 @@ const ProfilePage = () => {
     switch (user?.role) {
       case 'learner':
         return <LearnerProfile user={user} />;
-      case 'employer':
+      case 'organization':
       case 'admin':
         return <OrganizationProfile user={user} />;
       default:

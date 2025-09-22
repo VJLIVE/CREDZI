@@ -21,7 +21,7 @@ const userSchema = new mongoose.Schema({
   },
   role: {
     type: String,
-    enum: ['learner', 'employer', 'admin'],
+    enum: ['learner', 'organization', 'admin'],
     default: 'learner',
   },
   walletId: {

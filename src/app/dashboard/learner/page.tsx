@@ -16,7 +16,7 @@ const LearnerDashboard = () => {
         router.push('/');
       } else if (!hasRole('learner')) {
         // Wrong role, redirect to appropriate dashboard or home
-        if (hasRole('employer') || hasRole('admin')) {
+        if (hasRole('organization') || hasRole('admin')) {
           router.push('/dashboard/organization');
         } else {
           router.push('/');

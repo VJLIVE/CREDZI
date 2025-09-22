@@ -32,7 +32,7 @@ const SignInModal = ({ isOpen, onClose }: SignInModalProps) => {
     onClose();
     if (user.role === 'learner') {
       router.push('/dashboard/learner');
-    } else if (user.role === 'employer' || user.role === 'admin') {
+    } else if (user.role === 'organization' || user.role === 'admin') {
       router.push('/dashboard/organization');
     }
   }, [router, onClose]);
