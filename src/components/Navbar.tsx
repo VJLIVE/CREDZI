@@ -2,9 +2,11 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import SignInModal from './SignInModal';
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isSignInModalOpen, setIsSignInModalOpen] = useState(false);
 
   return (
     <nav className="bg-white shadow-sm border-b border-gray-100 sticky top-0 z-50">
@@ -52,7 +54,10 @@ const Navbar = () => {
 
           <div className="hidden md:block">
             <div className="flex items-center space-x-3">
-              <button className="text-gray-600 hover:text-blue-600 px-4 py-2 text-sm font-medium transition-colors">
+              <button 
+                onClick={() => setIsSignInModalOpen(true)}
+                className="text-gray-600 hover:text-blue-600 px-4 py-2 text-sm font-medium transition-colors"
+              >
                 Sign In
               </button>
               <Link href="/signup" className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-2 rounded-lg text-sm font-medium hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-md hover:shadow-lg">
@@ -109,7 +114,13 @@ const Navbar = () => {
               >
                 About
               </Link>
-              <button className="text-gray-600 hover:text-blue-600 block px-3 py-2 text-base font-medium transition-colors w-full text-left">
+              <button 
+                onClick={() => {
+                  setIsSignInModalOpen(true);
+                  setIsMenuOpen(false);
+                }}
+                className="text-gray-600 hover:text-blue-600 block px-3 py-2 text-base font-medium transition-colors w-full text-left"
+              >
                 Sign In
               </button>
               <Link 
@@ -123,6 +134,12 @@ const Navbar = () => {
           </div>
         )}
       </div>
+
+      {/* Sign In Modal */}
+      <SignInModal 
+        isOpen={isSignInModalOpen} 
+        onClose={() => setIsSignInModalOpen(false)} 
+      />
     </nav>
   );
 };

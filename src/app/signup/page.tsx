@@ -1,10 +1,12 @@
 'use client';
 
 import { useState, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import PeraWallet from '@/components/PeraWallet';
 
 const SignUpPage = () => {
+  const router = useRouter();
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -37,6 +39,15 @@ const SignUpPage = () => {
     setIsWalletConnected(false);
     setConnectedWallet(null);
   }, []);
+
+  const handleUserFound = useCallback((user: any) => {
+    // Redirect to appropriate dashboard based on user role
+    if (user.role === 'learner') {
+      router.push('/dashboard/learner');
+    } else if (user.role === 'employer' || user.role === 'admin') {
+      router.push('/dashboard/organization');
+    }
+  }, [router]);
 
   const validateForm = () => {
     const newErrors: {[key: string]: string} = {};
@@ -131,6 +142,7 @@ const SignUpPage = () => {
           <PeraWallet
             onWalletConnect={handleWalletConnect}
             onWalletDisconnect={handleWalletDisconnect}
+            onUserFound={handleUserFound}
             isConnected={isWalletConnected}
             connectedWallet={connectedWallet}
           />
@@ -212,6 +224,24 @@ const SignUpPage = () => {
                   placeholder="john@example.com"
                 />
                 {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email}</p>}
+              </div>
+            </div>
+
+            <div>
+              <label htmlFor="role" className="block text-sm font-medium text-gray-700">
+                Account Type
+              </label>
+              <div className="mt-1">
+                <select
+                  id="role"
+                  name="role"
+                  value={formData.role}
+                  onChange={(e) => setFormData(prev => ({ ...prev, role: e.target.value }))}
+                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                >
+                  <option value="learner">Learner</option>
+                  <option value="employer">Organization/Employer</option>
+                </select>
               </div>
             </div>
 

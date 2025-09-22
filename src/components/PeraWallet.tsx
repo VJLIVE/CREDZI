@@ -6,13 +6,46 @@ import { PeraWalletConnect } from '@perawallet/connect';
 interface PeraWalletProps {
   onWalletConnect: (walletId: string) => void;
   onWalletDisconnect: () => void;
+  onUserFound?: (user: any) => void;
+  onUserNotFound?: () => void;
   isConnected: boolean;
   connectedWallet: string | null;
 }
 
-const PeraWallet = ({ onWalletConnect, onWalletDisconnect, isConnected, connectedWallet }: PeraWalletProps) => {
+const PeraWallet = ({ onWalletConnect, onWalletDisconnect, onUserFound, onUserNotFound, isConnected, connectedWallet }: PeraWalletProps) => {
   const [peraWallet, setPeraWallet] = useState<PeraWalletConnect | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [checkingUser, setCheckingUser] = useState(false);
+
+  const checkWalletInDatabase = async (walletId: string) => {
+    setCheckingUser(true);
+    try {
+      const response = await fetch('/api/wallet-check', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ walletId }),
+      });
+
+      const data = await response.json();
+      
+      if (data.exists && onUserFound) {
+        // Store user data in session storage
+        sessionStorage.setItem('credzi_user', JSON.stringify(data.user));
+        onUserFound(data.user);
+      } else if (!data.exists && onUserNotFound) {
+        onUserNotFound();
+      }
+      
+      return data;
+    } catch (error) {
+      console.error('Error checking wallet in database:', error);
+      return { exists: false };
+    } finally {
+      setCheckingUser(false);
+    }
+  };
 
   useEffect(() => {
     // Initialize Pera Wallet
@@ -25,6 +58,8 @@ const PeraWallet = ({ onWalletConnect, onWalletDisconnect, isConnected, connecte
     wallet.reconnectSession().then((accounts) => {
       if (accounts.length > 0) {
         onWalletConnect(accounts[0]);
+        // Check if this wallet exists in database
+        checkWalletInDatabase(accounts[0]);
       }
     }).catch((e) => {
       console.log('No existing session found');
@@ -51,6 +86,8 @@ const PeraWallet = ({ onWalletConnect, onWalletDisconnect, isConnected, connecte
       const newAccounts = await peraWallet.connect();
       if (newAccounts.length > 0) {
         onWalletConnect(newAccounts[0]);
+        // Check if this wallet exists in database
+        await checkWalletInDatabase(newAccounts[0]);
       }
     } catch (error) {
       console.error('Failed to connect to Pera Wallet:', error);
@@ -77,16 +114,23 @@ const PeraWallet = ({ onWalletConnect, onWalletDisconnect, isConnected, connecte
           <div className="flex items-center">
             <div className="w-3 h-3 bg-green-500 rounded-full mr-3"></div>
             <div>
-              <p className="text-sm font-medium text-green-800">Wallet Connected</p>
+              <p className="text-sm font-medium text-green-800">
+                {checkingUser ? 'Checking wallet...' : 'Wallet Connected'}
+              </p>
               <p className="text-xs text-green-600 font-mono">{formatWalletAddress(connectedWallet)}</p>
             </div>
           </div>
-          <button
-            onClick={handleDisconnect}
-            className="text-green-600 hover:text-green-800 text-sm font-medium"
-          >
-            Disconnect
-          </button>
+          <div className="flex items-center space-x-2">
+            {checkingUser && (
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-green-600"></div>
+            )}
+            <button
+              onClick={handleDisconnect}
+              className="text-green-600 hover:text-green-800 text-sm font-medium"
+            >
+              Disconnect
+            </button>
+          </div>
         </div>
       </div>
     );
