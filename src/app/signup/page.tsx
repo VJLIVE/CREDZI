@@ -1,7 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import Link from 'next/link';
+import PeraWallet from '@/components/PeraWallet';
 
 const SignUpPage = () => {
   const [formData, setFormData] = useState({
@@ -15,6 +16,8 @@ const SignUpPage = () => {
   const [errors, setErrors] = useState<{[key: string]: string}>({});
   const [isLoading, setIsLoading] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
+  const [isWalletConnected, setIsWalletConnected] = useState(false);
+  const [connectedWallet, setConnectedWallet] = useState<string | null>(null);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
@@ -24,8 +27,25 @@ const SignUpPage = () => {
     }));
   };
 
+  const handleWalletConnect = useCallback((walletId: string) => {
+    setIsWalletConnected(true);
+    setConnectedWallet(walletId);
+    setErrors({});
+  }, []);
+
+  const handleWalletDisconnect = useCallback(() => {
+    setIsWalletConnected(false);
+    setConnectedWallet(null);
+  }, []);
+
   const validateForm = () => {
     const newErrors: {[key: string]: string} = {};
+
+    if (!isWalletConnected) {
+      newErrors.wallet = 'Please connect your Pera wallet first';
+      setErrors(newErrors);
+      return false;
+    }
 
     if (!formData.firstName.trim()) newErrors.firstName = 'First name is required';
     if (!formData.lastName.trim()) newErrors.lastName = 'Last name is required';
@@ -55,6 +75,7 @@ const SignUpPage = () => {
             lastName: formData.lastName,
             email: formData.email,
             role: formData.role,
+            walletId: connectedWallet,
           }),
         });
 
@@ -107,6 +128,19 @@ const SignUpPage = () => {
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
+          <PeraWallet
+            onWalletConnect={handleWalletConnect}
+            onWalletDisconnect={handleWalletDisconnect}
+            isConnected={isWalletConnected}
+            connectedWallet={connectedWallet}
+          />
+
+          {errors.wallet && (
+            <div className="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded">
+              {errors.wallet}
+            </div>
+          )}
+
           {successMessage && (
             <div className="mb-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded">
               {successMessage}
@@ -119,7 +153,8 @@ const SignUpPage = () => {
             </div>
           )}
           
-          <form className="space-y-6" onSubmit={handleSubmit}>
+          {isWalletConnected && (
+            <form className="space-y-6" onSubmit={handleSubmit}>
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label htmlFor="firstName" className="block text-sm font-medium text-gray-700">
@@ -212,6 +247,7 @@ const SignUpPage = () => {
               </button>
             </div>
           </form>
+          )}
         </div>
       </div>
     </div>

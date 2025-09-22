@@ -7,7 +7,7 @@ export async function POST(request: NextRequest) {
     await dbConnect();
 
     const body = await request.json();
-    const { firstName, lastName, email, role } = body;
+    const { firstName, lastName, email, role, walletId } = body;
 
     if (!firstName || !lastName || !email) {
       return NextResponse.json(
@@ -16,12 +16,33 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const existingUser = await User.findOne({ email: email.toLowerCase() });
-    if (existingUser) {
+    // Validate wallet ID is provided
+    if (!walletId) {
       return NextResponse.json(
-        { error: 'User with this email already exists' },
-        { status: 409 }
+        { error: 'Wallet connection is required' },
+        { status: 400 }
       );
+    }
+
+    // Check if user already exists by email or wallet
+    const existingUser = await User.findOne({
+      $or: [
+        { email: email.toLowerCase() },
+        { walletId: walletId }
+      ]
+    });
+    if (existingUser) {
+      if (existingUser.email === email.toLowerCase()) {
+        return NextResponse.json(
+          { error: 'User with this email already exists' },
+          { status: 409 }
+        );
+      } else {
+        return NextResponse.json(
+          { error: 'This wallet is already connected to another account' },
+          { status: 409 }
+        );
+      }
     }
 
     const newUser = new User({
@@ -29,6 +50,7 @@ export async function POST(request: NextRequest) {
       lastName,
       email: email.toLowerCase(),
       role: role || 'learner',
+      walletId,
     });
 
     const savedUser = await newUser.save();
@@ -42,6 +64,7 @@ export async function POST(request: NextRequest) {
           lastName: savedUser.lastName,
           email: savedUser.email,
           role: savedUser.role,
+          walletId: savedUser.walletId,
           createdAt: savedUser.createdAt,
         },
       },

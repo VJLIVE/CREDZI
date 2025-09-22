@@ -24,6 +24,11 @@ const userSchema = new mongoose.Schema({
     enum: ['learner', 'employer', 'admin'],
     default: 'learner',
   },
+  walletId: {
+    type: String,
+    required: false,
+    trim: true,
+  },
   createdAt: {
     type: Date,
     default: Date.now,
