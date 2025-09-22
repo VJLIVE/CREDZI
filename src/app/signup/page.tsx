@@ -62,7 +62,6 @@ const SignUpPage = () => {
 
         if (response.ok) {
           setSuccessMessage('Account created successfully! Welcome to Credzi.');
-          // Reset form
           setFormData({
             firstName: '',
             lastName: '',

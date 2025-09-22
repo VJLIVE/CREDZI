@@ -34,13 +34,11 @@ const userSchema = new mongoose.Schema({
   },
 });
 
-// Update the updatedAt field before saving
 userSchema.pre('save', function(next) {
   this.updatedAt = new Date();
   next();
 });
 
-// Prevent re-compilation during development
 const User = mongoose.models.User || mongoose.model('User', userSchema);
 
 export default User;
