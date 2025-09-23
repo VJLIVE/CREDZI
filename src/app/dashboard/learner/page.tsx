@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useWalletAuth } from '@/hooks/useWalletAuth';
 import Navbar from '@/components/Navbar';
@@ -8,6 +8,8 @@ import Navbar from '@/components/Navbar';
 const LearnerDashboard = () => {
   const router = useRouter();
   const { user, isAuthenticated, hasRole, isLoading } = useWalletAuth();
+  const [credentialsCount, setCredentialsCount] = useState<number>(0);
+  const [loadingCount, setLoadingCount] = useState<boolean>(true);
 
   useEffect(() => {
     if (!isLoading) {
@@ -22,6 +24,30 @@ const LearnerDashboard = () => {
       }
     }
   }, [isAuthenticated, hasRole, isLoading, router]);
+
+  // Fetch credentials count when user is authenticated
+  useEffect(() => {
+    const fetchCredentialsCount = async () => {
+      if (isAuthenticated && user?.walletId) {
+        try {
+          setLoadingCount(true);
+          const response = await fetch(`/api/certificates/count?walletId=${user.walletId}`);
+          if (response.ok) {
+            const data = await response.json();
+            setCredentialsCount(data.count);
+          } else {
+            console.error('Failed to fetch credentials count');
+          }
+        } catch (error) {
+          console.error('Error fetching credentials count:', error);
+        } finally {
+          setLoadingCount(false);
+        }
+      }
+    };
+
+    fetchCredentialsCount();
+  }, [isAuthenticated, user?.walletId]);
 
   if (isLoading) {
     return (
@@ -100,8 +126,23 @@ const LearnerDashboard = () => {
                 </div>
               </div>
               <div className="text-center mt-5">
-                <p className="text-4xl font-extrabold text-gray-700 drop-shadow">0</p>
-                <p className="text-base text-gray-400">Credentials Earned</p>
+                {loadingCount ? (
+                  <div className="animate-pulse">
+                    <div className="w-16 h-10 bg-gray-200 rounded mx-auto mb-2"></div>
+                    <div className="w-24 h-4 bg-gray-200 rounded mx-auto"></div>
+                  </div>
+                ) : (
+                  <>
+                    <p className="text-4xl font-extrabold text-gray-700 drop-shadow">{credentialsCount}</p>
+                    <p className="text-base text-gray-400 mb-4">Credentials Earned</p>
+                    <button
+                      onClick={() => router.push('/credentials')}
+                      className="bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors"
+                    >
+                      View All Credentials
+                    </button>
+                  </>
+                )}
               </div>
             </div>
             {/* Recent Activity */}
