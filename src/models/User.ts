@@ -102,6 +102,11 @@ const userSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
+  // Array to store certificate references
+  certificates: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Certificate',
+  }],
   createdAt: {
     type: Date,
     default: Date.now,
@@ -114,6 +119,12 @@ const userSchema = new mongoose.Schema({
 
 userSchema.pre('save', function(next) {
   this.updatedAt = new Date();
+  
+  // Initialize certificates array if it doesn't exist
+  if (!this.certificates) {
+    this.certificates = [];
+  }
+  
   next();
 });
 
