@@ -1,46 +1,13 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useWalletAuth } from '@/hooks/useWalletAuth';
 import Navbar from '@/components/Navbar';
-import IssueCredentialModal from '@/components/IssueCredentialModal';
 
 const OrganizationDashboard = () => {
   const router = useRouter();
   const { user, isAuthenticated, hasRole, isLoading } = useWalletAuth();
-  const [isModalOpen, setIsModalOpen] = useState(false);
-
-  const handleIssueCredential = async (data: { walletId: string; courseName: string }) => {
-    try {
-      const response = await fetch('/api/certificates/issue', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          walletId: data.walletId,
-          courseName: data.courseName,
-          issuerWalletId: user?.walletId,
-        }),
-      });
-
-      const result = await response.json();
-
-      if (!response.ok) {
-        throw new Error(result.error || 'Failed to issue certificate');
-      }
-
-      // Show success message with certificate details
-      alert(`Certificate issued successfully!\n\nLearner: ${result.learner.name} (${result.learner.email})\nCourse: ${result.certificate.courseName}\nCertificate ID: ${result.certificate.id}\nIssued by: ${result.certificate.issuerOrganization}`);
-      
-      console.log('Certificate issued:', result.certificate);
-    } catch (error: any) {
-      console.error('Failed to issue certificate:', error);
-      alert(`Failed to issue certificate: ${error.message}`);
-      throw error; // Re-throw to let the modal handle the error state
-    }
-  };
 
   useEffect(() => {
     if (!isLoading) {
@@ -165,10 +132,7 @@ const OrganizationDashboard = () => {
           <div className="bg-white rounded-lg shadow-sm p-6">
             <h2 className="text-xl font-bold text-gray-900 mb-4">Quick Actions</h2>
             <div className="space-y-3">
-              <button 
-                onClick={() => setIsModalOpen(true)}
-                className="w-full text-left p-3 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors"
-              >
+              <button className="w-full text-left p-3 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors">
                 <div className="flex items-center">
                   <svg className="w-5 h-5 text-blue-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
@@ -210,13 +174,6 @@ const OrganizationDashboard = () => {
         </div>
         </main>
       </div>
-      
-      {/* Issue Credential Modal */}
-      <IssueCredentialModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        onSubmit={handleIssueCredential}
-      />
     </>
   );
 };
