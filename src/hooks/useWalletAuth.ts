@@ -123,5 +123,6 @@ export const useWalletAuth = () => {
     hasRole,
     disconnect,
     checkUserInDatabase,
+    peraWallet, // Add peraWallet to return
   };
 };

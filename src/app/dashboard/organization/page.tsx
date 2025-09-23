@@ -1,13 +1,232 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useWalletAuth } from '@/hooks/useWalletAuth';
 import Navbar from '@/components/Navbar';
+import IssueCertificateForm, { CertificateFormData } from '@/components/IssueCertificateForm';
+import { prepareAndSignCertificateTransaction, prepareAndSignTransferTransaction, prepareAndSignOptInTransaction, checkAssetOptInStatus } from '@/lib/algorandUtils';
+
+interface IssuedCertificate {
+  id: string;
+  learnerName: string;
+  learnerWallet: string;
+  courseName: string;
+  organizationName: string;
+  assetId: number;
+  ipfsHash: string;
+  transactionId: string;
+  issuedAt: string;
+  verificationUrl: string;
+}
+
+interface ApiResponse {
+  message: string;
+  certificate: IssuedCertificate;
+}
+
+interface ApiError {
+  error: string;
+  details?: string;
+}
 
 const OrganizationDashboard = () => {
   const router = useRouter();
-  const { user, isAuthenticated, hasRole, isLoading } = useWalletAuth();
+  const { user, isAuthenticated, hasRole, isLoading, connectedWallet, peraWallet } = useWalletAuth();
+  
+  // Component state
+  const [showCertificateForm, setShowCertificateForm] = useState(false);
+  const [isIssuing, setIsIssuing] = useState(false);
+  const [issuedCertificates, setIssuedCertificates] = useState<IssuedCertificate[]>([]);
+  const [pendingTransfersCount, setPendingTransfersCount] = useState<number>(0);
+  const [successMessage, setSuccessMessage] = useState<string>('');
+  const [errorMessage, setErrorMessage] = useState<string>('');
+
+  // API call to issue certificate with wallet signing
+  const handleIssueCertificate = async (formData: CertificateFormData) => {
+    setIsIssuing(true);
+    setErrorMessage('');
+    setSuccessMessage('');
+
+    try {
+      if (!connectedWallet) {
+        throw new Error('Wallet not connected. Please connect your wallet to issue certificates.');
+      }
+
+      if (!peraWallet) {
+        throw new Error('Wallet service not initialized. Please refresh the page and try again.');
+      }
+
+      // Step 1: Upload metadata to IPFS first
+      const metadataResponse = await fetch('/api/uploadMetadata', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          learnerName: formData.learnerName,
+          courseName: formData.courseName,
+          organizationName: formData.organizationName || user?.organizationName || 'Organization',
+          description: formData.description,
+          skills: formData.skills,
+          grade: formData.grade,
+          score: formData.score,
+          validUntil: formData.validUntil,
+        }),
+      });
+
+      if (!metadataResponse.ok) {
+        const errorData = await metadataResponse.json();
+        throw new Error(errorData.error || 'Failed to upload metadata');
+      }
+
+      const { ipfsHash } = await metadataResponse.json();
+
+      // Step 2: Prepare and sign asset creation transaction using connected wallet
+      const signedTransactionResult = await prepareAndSignCertificateTransaction(
+        peraWallet,
+        connectedWallet,
+        formData.learnerWallet,
+        ipfsHash,
+        formData.courseName
+      );
+
+      // Step 3: Submit the signed transaction to create the certificate
+      const response = await fetch('/api/issueCertificate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ...formData,
+          organizationName: formData.organizationName || user?.organizationName || 'Organization',
+          signedTxn: signedTransactionResult.signedTxn,
+          issuerWallet: connectedWallet,
+          ipfsHash: ipfsHash,
+        }),
+      });
+
+      const data: ApiResponse | ApiError = await response.json();
+
+      if (!response.ok) {
+        const errorData = data as ApiError;
+        throw new Error(errorData.details || errorData.error || 'Failed to issue certificate');
+      }
+
+      const successData = data as ApiResponse;
+
+      // Step 4: Check if learner wallet is opted into the asset
+      console.log('Checking asset opt-in status...');
+      const isOptedIn = await checkAssetOptInStatus(formData.learnerWallet, successData.certificate.assetId);
+      
+      if (!isOptedIn) {
+        // If not opted in, show success message for certificate creation but warn about transfer
+        setSuccessMessage(`Certificate created successfully! Asset ID: ${successData.certificate.assetId}. 
+          
+⚠️ Transfer pending: The learner's wallet needs to opt into this asset before receiving it. 
+Please share the Asset ID (${successData.certificate.assetId}) with the learner and ask them to opt into it using their Pera Wallet, then you can retry the transfer.`);
+        
+        // Add to local state 
+        setIssuedCertificates(prev => [successData.certificate, ...prev]);
+        
+        // Refresh pending transfers count
+        fetchPendingTransfersCount();
+        
+        // Close form
+        setShowCertificateForm(false);
+        
+        // Clear success message after 10 seconds (longer for important message)
+        setTimeout(() => setSuccessMessage(''), 10000);
+        return; // Exit early, don't attempt transfer
+      }
+
+      // Step 5: Transfer the asset to the learner (only if opted in)
+      console.log('Learner is opted in, preparing transfer transaction...');
+      const transferSignedResult = await prepareAndSignTransferTransaction(
+        peraWallet,
+        connectedWallet,
+        formData.learnerWallet,
+        successData.certificate.assetId
+      );
+
+      // Step 6: Submit the transfer transaction
+      console.log('Submitting transfer transaction...');
+      const transferResponse = await fetch('/api/transferCertificate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          certificateId: successData.certificate.id,
+          signedTransaction: transferSignedResult.signedTxn,
+          learnerWallet: formData.learnerWallet,
+        }),
+      });
+
+      const transferData = await transferResponse.json();
+
+      if (!transferResponse.ok) {
+        console.error('Transfer failed:', transferData);
+        // If transfer fails due to opt-in issue, provide helpful message
+        if (transferData.error?.includes('not opted in')) {
+          throw new Error(`Transfer failed: The learner's wallet (${formData.learnerWallet}) needs to opt into the asset first. Asset ID: ${successData.certificate.assetId}. Please ask the learner to opt into this asset in their wallet before transfer.`);
+        }
+        throw new Error(transferData.error || 'Failed to transfer certificate to learner');
+      }
+      
+      // Add to local state with updated transfer information
+      setIssuedCertificates(prev => [transferData.certificate, ...prev]);
+      
+      // Refresh pending transfers count
+      fetchPendingTransfersCount();
+      
+      // Show success message
+      setSuccessMessage(`Certificate issued and transferred successfully! Asset ID: ${successData.certificate.assetId}. The NFT certificate has been sent to the learner's wallet.`);
+      
+      // Close form
+      setShowCertificateForm(false);
+      
+      // Clear success message after 5 seconds
+      setTimeout(() => setSuccessMessage(''), 5000);
+
+    } catch (error: any) {
+      console.error('Certificate issuance error:', error);
+      
+      // Handle specific wallet errors
+      if (error.message.includes('User rejected')) {
+        setErrorMessage('Transaction was cancelled by user.');
+      } else if (error.message.includes('Wallet not connected')) {
+        setErrorMessage(error.message);
+      } else if (error.message.includes('not opted in')) {
+        setErrorMessage(error.message + ' The certificate has been created but needs to be transferred manually.');
+      } else if (error.message.includes('insufficient')) {
+        setErrorMessage('Insufficient ALGO balance for transaction fees. Please add ALGO to your wallet.');
+      } else {
+        setErrorMessage(error.message || 'Failed to issue certificate. Please try again.');
+      }
+    } finally {
+      setIsIssuing(false);
+    }
+  };
+
+  // Clear error message when user interacts
+  const clearMessages = () => {
+    setErrorMessage('');
+    setSuccessMessage('');
+  };
+
+  // Fetch pending transfers count
+  const fetchPendingTransfersCount = async () => {
+    try {
+      const response = await fetch('/api/certificates/pending?limit=1');
+      if (response.ok) {
+        const data = await response.json();
+        setPendingTransfersCount(data.pagination?.total || 0);
+      }
+    } catch (error) {
+      console.error('Error fetching pending transfers count:', error);
+    }
+  };
 
   useEffect(() => {
     if (!isLoading) {
@@ -21,6 +240,9 @@ const OrganizationDashboard = () => {
         } else {
           router.push('/');
         }
+      } else {
+        // User is authenticated and has correct role, fetch pending transfers count
+        fetchPendingTransfersCount();
       }
     }
   }, [isAuthenticated, hasRole, isLoading, router]);
@@ -46,6 +268,45 @@ const OrganizationDashboard = () => {
       <div className="min-h-screen bg-gray-50">
         {/* Main Content */}
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        {/* Success/Error Messages */}
+        {successMessage && (
+          <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg flex items-center justify-between">
+            <div className="flex items-center">
+              <svg className="w-5 h-5 text-green-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <p className="text-green-800">{successMessage}</p>
+            </div>
+            <button
+              onClick={() => setSuccessMessage('')}
+              className="text-green-600 hover:text-green-800"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+        )}
+
+        {errorMessage && (
+          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-center justify-between">
+            <div className="flex items-center">
+              <svg className="w-5 h-5 text-red-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <p className="text-red-800">{errorMessage}</p>
+            </div>
+            <button
+              onClick={() => setErrorMessage('')}
+              className="text-red-600 hover:text-red-800"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+        )}
         {/* Welcome Section */}
         <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
           <h1 className="text-2xl font-bold text-gray-900 mb-2">
@@ -76,7 +337,7 @@ const OrganizationDashboard = () => {
               </div>
             </div>
             <div>
-              <p className="text-2xl font-bold text-gray-900">0</p>
+              <p className="text-2xl font-bold text-gray-900">{issuedCertificates.length}</p>
               <p className="text-sm text-gray-600">Credentials Issued</p>
             </div>
           </div>
@@ -132,7 +393,14 @@ const OrganizationDashboard = () => {
           <div className="bg-white rounded-lg shadow-sm p-6">
             <h2 className="text-xl font-bold text-gray-900 mb-4">Quick Actions</h2>
             <div className="space-y-3">
-              <button className="w-full text-left p-3 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors">
+              <button 
+                className="w-full text-left p-3 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                onClick={() => {
+                  clearMessages();
+                  setShowCertificateForm(true);
+                }}
+                disabled={!connectedWallet || !peraWallet}
+              >
                 <div className="flex items-center">
                   <svg className="w-5 h-5 text-blue-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
@@ -140,6 +408,32 @@ const OrganizationDashboard = () => {
                   <span className="font-medium text-gray-900">Issue New Credential</span>
                 </div>
               </button>
+              
+              <button 
+                className="w-full text-left p-3 bg-orange-50 hover:bg-orange-100 rounded-lg transition-colors"
+                onClick={() => {
+                  router.push('/dashboard/organization/pending-transfers');
+                }}
+              >
+                <div className="flex items-center">
+                  <svg className="w-5 h-5 text-orange-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                  </svg>
+                  <span className="font-medium text-gray-900">Pending Transfers</span>
+                  {pendingTransfersCount > 0 && (
+                    <span className="ml-2 px-2 py-1 bg-orange-200 text-orange-800 text-xs font-bold rounded-full">
+                      {pendingTransfersCount}
+                    </span>
+                  )}
+                </div>
+                <div className="text-sm text-gray-500 mt-1 ml-8">
+                  {pendingTransfersCount > 0 
+                    ? `${pendingTransfersCount} certificate${pendingTransfersCount === 1 ? '' : 's'} waiting for transfer`
+                    : 'All certificates have been transferred'
+                  }
+                </div>
+              </button>
+              
               <button className="w-full text-left p-3 bg-green-50 hover:bg-green-100 rounded-lg transition-colors">
                 <div className="flex items-center">
                   <svg className="w-5 h-5 text-green-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -160,20 +454,64 @@ const OrganizationDashboard = () => {
           </div>
 
           <div className="bg-white rounded-lg shadow-sm p-6">
-            <h2 className="text-xl font-bold text-gray-900 mb-4">Recent Activity</h2>
-            <div className="text-center py-8">
-              <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                </svg>
+            <h2 className="text-xl font-bold text-gray-900 mb-4">Recent Certificates</h2>
+            {issuedCertificates.length > 0 ? (
+              <div className="space-y-3">
+                {issuedCertificates.slice(0, 5).map((cert) => (
+                  <div key={cert.id} className="p-3 bg-gray-50 rounded-lg">
+                    <div className="flex items-center justify-between">
+                      <div className="flex-1">
+                        <p className="font-medium text-gray-900">{cert.learnerName}</p>
+                        <p className="text-sm text-gray-600">{cert.courseName}</p>
+                        <p className="text-xs text-gray-500">
+                          Asset ID: {cert.assetId} • {new Date(cert.issuedAt).toLocaleDateString()}
+                        </p>
+                      </div>
+                      <a
+                        href={cert.verificationUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                      >
+                        Verify
+                      </a>
+                    </div>
+                  </div>
+                ))}
+                {issuedCertificates.length > 5 && (
+                  <p className="text-sm text-gray-500 text-center pt-2">
+                    And {issuedCertificates.length - 5} more certificates...
+                  </p>
+                )}
               </div>
-              <p className="text-gray-500">No recent activity</p>
-              <p className="text-sm text-gray-400">Start issuing credentials to see activity here</p>
-            </div>
+            ) : (
+              <div className="text-center py-8">
+                <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                  </svg>
+                </div>
+                <p className="text-gray-500">No certificates issued yet</p>
+                <p className="text-sm text-gray-400">Start issuing credentials to see activity here</p>
+              </div>
+            )}
           </div>
         </div>
         </main>
       </div>
+
+      {/* Certificate Issuance Form Modal */}
+      {showCertificateForm && connectedWallet && peraWallet && (
+        <IssueCertificateForm
+          onSubmit={handleIssueCertificate}
+          isLoading={isIssuing}
+          onCancel={() => {
+            setShowCertificateForm(false);
+            clearMessages();
+          }}
+          connectedWallet={connectedWallet}
+        />
+      )}
     </>
   );
 };
