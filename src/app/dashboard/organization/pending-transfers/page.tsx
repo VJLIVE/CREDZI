@@ -231,35 +231,6 @@ export default function PendingTransfersPage() {
     }
   };
 
-  const handleManualUpdate = async (certificateId: string) => {
-    try {
-      const response = await fetch('/api/certificates/update-status', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          certificateId: certificateId,
-          transferredToLearner: true,
-        }),
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        // Remove from pending list
-        setPendingCertificates(prev => prev.filter(cert => cert.id !== certificateId));
-        setSuccessMessage('Certificate marked as transferred successfully!');
-        setTimeout(() => setSuccessMessage(''), 3000);
-      } else {
-        setError(`Failed to update certificate: ${data.error}`);
-      }
-    } catch (error) {
-      console.error('Error updating certificate:', error);
-      setError('Failed to update certificate status');
-    }
-  };
-
   const handleTransferComplete = (certificateId: string) => {
     // Remove the certificate from pending list immediately for better UX
     setPendingCertificates(prev => prev.filter(cert => cert.id !== certificateId));
@@ -398,20 +369,12 @@ export default function PendingTransfersPage() {
                           {new Date(certificate.issuedAt).toLocaleDateString()}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="space-y-2">
-                            <TransferButton
-                              certificate={certificate}
-                              peraWallet={peraWallet}
-                              connectedWallet={connectedWallet || ''}
-                              onTransferComplete={handleTransferComplete}
-                            />
-                            <button
-                              onClick={() => handleManualUpdate(certificate.id)}
-                              className="w-full px-3 py-1 bg-orange-500 text-white rounded text-sm hover:bg-orange-600"
-                            >
-                              Mark as Transferred
-                            </button>
-                          </div>
+                          <TransferButton
+                            certificate={certificate}
+                            peraWallet={peraWallet}
+                            connectedWallet={connectedWallet || ''}
+                            onTransferComplete={handleTransferComplete}
+                          />
                         </td>
                       </tr>
                     ))}

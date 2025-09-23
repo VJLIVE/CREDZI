@@ -216,6 +216,7 @@ export async function POST(request: NextRequest) {
       metadata,
       transactionId,
       status: 'issued',
+      transferredToLearner: false, // Explicitly set to false when issuing
     });
 
     const savedCertificate = await certificate.save();
