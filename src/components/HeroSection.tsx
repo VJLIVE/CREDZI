@@ -1,83 +1,111 @@
+'use client';
+
+import { motion } from 'framer-motion';
+
 const HeroSection = () => {
   return (
-    <section className="bg-gradient-to-br from-blue-50 via-white to-purple-50 py-20 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-7xl mx-auto">
-        <div className="text-center">
-          {/* Badge */}
-          <div className="inline-flex items-center px-4 py-2 rounded-full bg-blue-100 text-blue-800 text-sm font-medium mb-8">
-            <span className="w-2 h-2 bg-blue-600 rounded-full mr-2"></span>
+    <section className="relative bg-white py-24 px-6 lg:px-12">
+      <div className="max-w-7xl mx-auto text-center">
+
+        {/* Professional Algorand Badge */}
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="inline-flex items-center px-6 py-3 rounded-full bg-gray-50 shadow-md mb-10"
+        >
+          {/* Algorand Logo */}
+          <img
+            src="https://imgs.search.brave.com/UR09hCJEx4_5d_h6j914EsB5ExduABAsAkr0V0RmLA8/rs:fit:500:0:1:0/g:ce/aHR0cHM6Ly90aHVt/YnMuZHJlYW1zdGlt/ZS5jb20vYi9hbGdv/cmFuZC1hbGdvLXB1/cnBsZS1kZXNpZ24t/dGVjaG5vbG9neS1i/YWNrZ3JvdW5kLWNy/eXB0by1jdXJyZW5j/eS1kaWdpdGFsLW1v/bmV5LWV4Y2hhbmdl/LXZlY2hhaW4tMjQz/NjkzNzI3LmpwZw"
+            alt="Algorand Logo"
+            className="w-6 h-6 mr-3"
+          />
+          <span className="text-gray-800 font-semibold text-sm">
             Powered by Algorand Blockchain
-          </div>
+          </span>
+        </motion.div>
 
-          {/* Main Headline */}
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 mb-6 leading-tight">
-            The Future of{' '}
-            <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-              Digital Credentials
-            </span>
-          </h1>
+        {/* Headline */}
+        <motion.h1
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-black leading-tight mb-6"
+        >
+          The Future of Digital Credentials
+        </motion.h1>
 
-          {/* Subheadline */}
-          <p className="text-xl sm:text-2xl text-gray-600 mb-8 max-w-4xl mx-auto leading-relaxed">
-            Secure, transparent, and tamper-proof platform for digital skill certificates. 
-            Institutions issue, learners own for life, employers verify instantly.
+        {/* Subheadline */}
+        <motion.p
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="text-lg sm:text-xl lg:text-2xl text-gray-600 max-w-3xl mx-auto mb-10 leading-relaxed"
+        >
+          Secure, transparent, and tamper-proof platform for digital skill
+          certificates. Institutions issue, learners own for life, employers
+          verify instantly.
+        </motion.p>
+
+        {/* Feature highlights */}
+        <div className="flex flex-wrap justify-center gap-6 mb-14 text-base sm:text-lg">
+          {[
+            'Blockchain Secured',
+            'Instant Verification',
+            'Global Portability',
+            'QR-Based Access',
+          ].map((feature, i) => (
+            <motion.div
+              key={feature}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 + i * 0.1 }}
+              className="flex items-center px-5 py-3 rounded-lg bg-gray-50 shadow-sm hover:shadow-md transition"
+            >
+              <svg
+                className="w-5 h-5 text-green-500 mr-2 flex-shrink-0"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M16.707 5.293a1 1 0 010 1.414l-8 
+                  8a1 1 0 01-1.414 0l-4-4a1 1 
+                  0 011.414-1.414L8 12.586l7.293-7.293a1 
+                  1 0 011.414 0z"
+                  clipRule="evenodd"
+                />
+              </svg>
+              <span className="text-black font-medium">{feature}</span>
+            </motion.div>
+          ))}
+        </div>
+
+        {/* CTA Button */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.6 }}
+          className="flex justify-center"
+        >
+          <button className="bg-blue-600 text-white px-10 py-4 rounded-lg text-lg font-semibold w-full sm:w-auto">
+            Get Started
+          </button>
+        </motion.div>
+
+        {/* Trust Indicators */}
+        <div className="mt-20 pt-10 border-t border-gray-200">
+          <p className="text-gray-500 text-sm mb-8">
+            Trusted by leading institutions
           </p>
-
-          {/* Feature highlights */}
-          <div className="flex flex-wrap justify-center gap-6 mb-12 text-sm sm:text-base">
-            <div className="flex items-center text-gray-700">
-              <svg className="w-5 h-5 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-              </svg>
-              Blockchain Secured
-            </div>
-            <div className="flex items-center text-gray-700">
-              <svg className="w-5 h-5 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-              </svg>
-              Instant Verification
-            </div>
-            <div className="flex items-center text-gray-700">
-              <svg className="w-5 h-5 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-              </svg>
-              Global Portability
-            </div>
-            <div className="flex items-center text-gray-700">
-              <svg className="w-5 h-5 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-              </svg>
-              QR-Based Access
-            </div>
-          </div>
-
-          {/* CTA Buttons */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <button className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-4 rounded-lg text-lg font-semibold hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-1 w-full sm:w-auto">
-              Get Started
-            </button>
-            <button className="border-2 border-blue-600 text-blue-600 px-8 py-4 rounded-lg text-lg font-semibold hover:bg-blue-600 hover:text-white transition-all duration-200 w-full sm:w-auto">
-              Watch Demo
-            </button>
-          </div>
-
-          {/* Trust indicators */}
-          <div className="mt-16 pt-8 border-t border-gray-200">
-            <p className="text-gray-500 text-sm mb-6">Trusted by leading institutions</p>
-            <div className="flex flex-wrap justify-center items-center gap-8 opacity-60">
-              <div className="bg-gray-200 h-12 w-32 rounded flex items-center justify-center text-gray-600 font-semibold">
-                Institution 1
+          <div className="flex flex-wrap justify-center items-center gap-10 opacity-90">
+            {['Institution 1', 'Institution 2', 'Institution 3', 'Institution 4'].map((name) => (
+              <div
+                key={name}
+                className="h-14 w-36 rounded-md flex items-center justify-center bg-gray-100 text-gray-700 font-semibold shadow-sm hover:shadow-md transition"
+              >
+                {name}
               </div>
-              <div className="bg-gray-200 h-12 w-32 rounded flex items-center justify-center text-gray-600 font-semibold">
-                Institution 2
-              </div>
-              <div className="bg-gray-200 h-12 w-32 rounded flex items-center justify-center text-gray-600 font-semibold">
-                Institution 3
-              </div>
-              <div className="bg-gray-200 h-12 w-32 rounded flex items-center justify-center text-gray-600 font-semibold">
-                Institution 4
-              </div>
-            </div>
+            ))}
           </div>
         </div>
       </div>

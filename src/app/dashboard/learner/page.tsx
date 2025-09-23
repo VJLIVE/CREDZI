@@ -12,10 +12,8 @@ const LearnerDashboard = () => {
   useEffect(() => {
     if (!isLoading) {
       if (!isAuthenticated) {
-        // Not authenticated, redirect to home
         router.push('/');
       } else if (!hasRole('learner')) {
-        // Wrong role, redirect to appropriate dashboard or home
         if (hasRole('organization') || hasRole('admin')) {
           router.push('/dashboard/organization');
         } else {
@@ -27,116 +25,101 @@ const LearnerDashboard = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Checking authentication...</p>
+      <div className="relative min-h-screen flex items-center justify-center">
+        {/* Soft white gradient corners */}
+        <div className="absolute inset-0 z-0 overflow-hidden">
+          <div className="absolute -top-32 -left-32 w-[400px] h-[400px] rounded-full opacity-50 blur-3xl" style={{background: 'radial-gradient(circle at 60% 40%, #fff 70%, #f1f5f9 100%)'}} />
+          <div className="absolute bottom-0 right-0 w-[350px] h-[350px] rounded-full opacity-30 blur-2xl" style={{background: 'radial-gradient(circle at 40% 60%, #fafafa 80%, #e5e7eb 100%)'}} />
+        </div>
+        <div className="relative z-10 text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-400 mx-auto mb-4"></div>
+          <p className="text-gray-800 font-medium">Checking authentication...</p>
         </div>
       </div>
     );
   }
 
   if (!isAuthenticated || !hasRole('learner')) {
-    return null; // Will redirect in useEffect
+    return null;
   }
 
   return (
     <>
       <Navbar />
-      <div className="min-h-screen bg-gray-50">
-        {/* Main Content */}
-        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Welcome Section */}
-        <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">
-            Welcome to your Learning Dashboard
-          </h1>
-          <p className="text-gray-600">
-            Track your progress, manage credentials, and explore new learning opportunities.
-          </p>
-          {user?.walletId && (
-            <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg">
-              <p className="text-sm text-green-800">
-                <span className="font-medium">Connected Wallet:</span>{' '}
-                <span className="font-mono">{user.walletId.slice(0, 6)}...{user.walletId.slice(-4)}</span>
-              </p>
-            </div>
-          )}
+      <div className="relative min-h-screen pb-8">
+        {/* Unique white/gray mesh background */}
+        <div className="absolute inset-0 -z-10 overflow-hidden pointer-events-none">
+          {/* Main subtle base vignette */}
+          <div className="absolute inset-0 w-full h-full" style={{
+            background: 'radial-gradient(ellipse 80% 60% at 60% 30%, #f9fafb 95%, #f1f5f9 100%)'
+          }} />
+          {/* Soft white mesh blobs */}
+          <div className="absolute top-[-120px] left-[-120px] w-[420px] h-[420px] rounded-full opacity-50 blur-3xl" style={{background: 'radial-gradient(circle, #fff 80%, #f3f4f6 100%)'}}></div>
+          <div className="absolute right-[-80px] top-[150px] w-[340px] h-[320px] rounded-full opacity-40 blur-2xl" style={{background: 'radial-gradient(circle, #e5e7eb 80%, #f3f4f6 100%)'}}></div>
+          <div className="absolute left-1/2 bottom-[-160px] w-[500px] h-[300px] rounded-full opacity-20 blur-2xl" style={{background: 'radial-gradient(circle, #e0e7ef 60%, transparent 100%)'}}></div>
         </div>
-
-        {/* Dashboard Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {/* My Credentials */}
-          <div className="bg-white rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow">
-            <div className="flex items-center mb-4">
-              <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
-                </svg>
+        <main className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          {/* Welcome Section */}
+          <div
+            className="bg-white bg-opacity-90 rounded-2xl shadow-xl ring-2 ring-gray-200 p-8 mb-10 border-2 border-transparent hover:border-gray-300 transition-all duration-300"
+            style={{
+              boxShadow: "0 8px 32px 0 rgba(220, 220, 220, 0.14), 0 1.5px 8px 0 rgba(240,240,240,0.10)",
+              backdropFilter: "saturate(180%) blur(7px)"
+            }}
+          >
+            <h1 className="text-3xl font-extrabold text-gray-800 mb-3">
+              Welcome to Your Learning Dashboard
+            </h1>
+            <p className="text-gray-600 text-lg">
+              Track your progress, manage credentials, and explore your achievements.
+            </p>
+            {user?.walletId && (
+              <div className="mt-5 p-3 bg-gradient-to-r from-white to-gray-100 border border-gray-200 rounded-lg shadow-inner">
+                <p className="text-sm text-gray-700">
+                  <span className="font-semibold">Connected Wallet: </span>
+                  <span className="font-mono">{user.walletId.slice(0, 6)}...{user.walletId.slice(-4)}</span>
+                </p>
               </div>
-              <div className="ml-4">
-                <h3 className="text-lg font-semibold text-gray-900">My Credentials</h3>
-                <p className="text-sm text-gray-600">View and manage your earned credentials</p>
+            )}
+          </div>
+          {/* Dashboard Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {/* My Credentials */}
+            <div className="bg-white bg-opacity-95 rounded-xl p-8 shadow-xl border-2 border-gray-300 ring-2 ring-gray-100 transition hover:ring-gray-300 hover:border-gray-400
+              relative before:content-[''] before:block before:absolute before:inset-0 before:rounded-xl before:pointer-events-none before:blur-md before:opacity-50 before:z-[-1] before:bg-gradient-to-tr before:from-white before:via-gray-100 before:to-gray-200"
+            >
+              <div className="flex items-center mb-5">
+                <div className="w-14 h-14 bg-gray-100 rounded-lg flex items-center justify-center shadow border border-gray-200">
+                  <svg className="w-7 h-7 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
+                  </svg>
+                </div>
+                <div className="ml-5">
+                  <h3 className="text-xl font-bold text-gray-900">My Credentials</h3>
+                  <p className="text-gray-600 text-base">View and manage your earned credentials</p>
+                </div>
+              </div>
+              <div className="text-center mt-5">
+                <p className="text-4xl font-extrabold text-gray-700 drop-shadow">0</p>
+                <p className="text-base text-gray-400">Credentials Earned</p>
               </div>
             </div>
-            <div className="text-center">
-              <p className="text-3xl font-bold text-blue-600">0</p>
-              <p className="text-sm text-gray-500">Credentials Earned</p>
+            {/* Recent Activity */}
+            <div className="bg-white bg-opacity-95 rounded-xl p-8 shadow-xl border-2 border-gray-300 ring-2 ring-gray-100 transition hover:ring-gray-300 hover:border-gray-400
+              relative before:content-[''] before:block before:absolute before:inset-0 before:rounded-xl before:pointer-events-none before:blur-md before:opacity-30 before:z-[-1] before:bg-gradient-to-br before:from-gray-100 before:via-gray-50 before:to-gray-200"
+            >
+              <h2 className="text-xl font-bold text-gray-900 mb-5">Recent Activity</h2>
+              <div className="text-center py-8">
+                <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4 border border-gray-200 shadow">
+                  <svg className="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                  </svg>
+                </div>
+                <p className="text-gray-500 font-medium">No recent activity</p>
+                <p className="text-sm text-gray-400">Start learning to see your progress here</p>
+              </div>
             </div>
           </div>
-
-          {/* Learning Progress */}
-          <div className="bg-white rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow">
-            <div className="flex items-center mb-4">
-              <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-                </svg>
-              </div>
-              <div className="ml-4">
-                <h3 className="text-lg font-semibold text-gray-900">Learning Progress</h3>
-                <p className="text-sm text-gray-600">Track your learning journey</p>
-              </div>
-            </div>
-            <div className="text-center">
-              <p className="text-3xl font-bold text-green-600">0%</p>
-              <p className="text-sm text-gray-500">Overall Progress</p>
-            </div>
-          </div>
-
-          {/* Available Courses */}
-          <div className="bg-white rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow">
-            <div className="flex items-center mb-4">
-              <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-                <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                </svg>
-              </div>
-              <div className="ml-4">
-                <h3 className="text-lg font-semibold text-gray-900">Available Courses</h3>
-                <p className="text-sm text-gray-600">Explore new learning opportunities</p>
-              </div>
-            </div>
-            <div className="text-center">
-              <p className="text-3xl font-bold text-purple-600">12</p>
-              <p className="text-sm text-gray-500">Courses Available</p>
-            </div>
-          </div>
-        </div>
-
-        {/* Recent Activity */}
-        <div className="mt-8 bg-white rounded-lg shadow-sm p-6">
-          <h2 className="text-xl font-bold text-gray-900 mb-4">Recent Activity</h2>
-          <div className="text-center py-8">
-            <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-              </svg>
-            </div>
-            <p className="text-gray-500">No recent activity</p>
-            <p className="text-sm text-gray-400">Start learning to see your progress here</p>
-          </div>
-        </div>
         </main>
       </div>
     </>
