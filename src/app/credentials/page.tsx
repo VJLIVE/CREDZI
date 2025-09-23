@@ -43,43 +43,49 @@ const CredentialsPage = () => {
   const [error, setError] = useState('');
   const [certificatesFetched, setCertificatesFetched] = useState(false);
 
+
   useEffect(() => {
-    if (!isLoading) {
-      if (!isAuthenticated) {
+    if (isLoading) return;
+
+    if (!isAuthenticated) {
+      router.push('/');
+      return;
+    }
+
+    if (!hasRole('learner')) {
+      if (hasRole('organization') || hasRole('admin')) {
+        router.push('/dashboard/organization');
+      } else {
         router.push('/');
-      } else if (!hasRole('learner')) {
-        if (hasRole('organization') || hasRole('admin')) {
-          router.push('/dashboard/organization');
-        } else {
-          router.push('/');
+      }
+      return;
+    }
+
+    if (user?.walletId && !certificatesFetched) {
+      const fetchCertificates = async () => {
+        try {
+          setLoading(true);
+          const response = await fetch(`/api/learner/certificates?walletId=${encodeURIComponent(user.walletId)}`);
+          const data = await response.json();
+
+          if (!response.ok) {
+            throw new Error(data.error || 'Failed to fetch certificates');
+          }
+
+          setCertificates(data.certificates || []);
+          setLearnerData(data.learner);
+          setCertificatesFetched(true);
+        } catch (err: any) {
+          setError(err.message);
+        } finally {
+          setLoading(false);
         }
-      } else if (user?.walletId && !certificatesFetched) {
-        fetchCertificates();
-      }
+      };
+      fetchCertificates();
     }
-  }, [isAuthenticated, hasRole, isLoading, user?.walletId, router]);
+  }, [isLoading, isAuthenticated, user?.walletId, certificatesFetched, hasRole, router]);
 
-  const fetchCertificates = async () => {
-    if (loading && certificatesFetched) return; // Prevent multiple calls
-    
-    try {
-      setLoading(true);
-      const response = await fetch(`/api/learner/certificates?walletId=${encodeURIComponent(user?.walletId || '')}`);
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to fetch certificates');
-      }
-
-      setCertificates(data.certificates || []);
-      setLearnerData(data.learner);
-      setCertificatesFetched(true);
-    } catch (err: any) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
+  // fetchCertificates moved inside useEffect
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
