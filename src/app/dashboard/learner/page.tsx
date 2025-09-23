@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useWalletAuth } from '@/hooks/useWalletAuth';
 import Navbar from '@/components/Navbar';
@@ -8,50 +8,6 @@ import Navbar from '@/components/Navbar';
 const LearnerDashboard = () => {
   const router = useRouter();
   const { user, isAuthenticated, hasRole, isLoading } = useWalletAuth();
-  const [certificateCount, setCertificateCount] = useState(0);
-  const [loadingCertificates, setLoadingCertificates] = useState(false);
-  const [certificatesFetched, setCertificatesFetched] = useState(false);
-
-  useEffect(() => {
-    if (!isLoading) {
-      if (!isAuthenticated) {
-        // Not authenticated, redirect to home
-        router.push('/');
-      } else if (!hasRole('learner')) {
-        // Wrong role, redirect to appropriate dashboard or home
-        if (hasRole('organization') || hasRole('admin')) {
-          router.push('/dashboard/organization');
-        } else {
-          router.push('/');
-        }
-      } else if (user?.walletId && !certificatesFetched && !loadingCertificates) {
-        // Only fetch if we haven't loaded yet and aren't currently loading
-        fetchCertificateCount();
-      }
-    }
-  }, [isAuthenticated, hasRole, isLoading, user?.walletId, router]); // Removed dependencies that cause loops
-
-  const fetchCertificateCount = async () => {
-    if (loadingCertificates || certificatesFetched) return; // Prevent multiple calls
-    
-    try {
-      setLoadingCertificates(true);
-      const response = await fetch(`/api/learner/certificates?walletId=${encodeURIComponent(user?.walletId || '')}`);
-      if (response.ok) {
-        const data = await response.json();
-        setCertificateCount(data.totalCertificates || 0);
-        setCertificatesFetched(true);
-      }
-    } catch (error) {
-      console.error('Error fetching certificate count:', error);
-    } finally {
-      setLoadingCertificates(false);
-    }
-  };
-
-  const handleViewCredentials = () => {
-    router.push('/credentials');
-  };
 
   useEffect(() => {
     if (!isLoading) {
@@ -111,32 +67,21 @@ const LearnerDashboard = () => {
         {/* Dashboard Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {/* My Credentials */}
-          <div 
-            onClick={handleViewCredentials}
-            className="bg-white rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow cursor-pointer group"
-          >
+          <div className="bg-white rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow">
             <div className="flex items-center mb-4">
-              <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center group-hover:bg-blue-200 transition-colors">
+              <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
                 <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
                 </svg>
               </div>
               <div className="ml-4">
-                <h3 className="text-lg font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">My Credentials</h3>
+                <h3 className="text-lg font-semibold text-gray-900">My Credentials</h3>
                 <p className="text-sm text-gray-600">View and manage your earned credentials</p>
               </div>
             </div>
             <div className="text-center">
-              {loadingCertificates ? (
-                <div className="flex items-center justify-center">
-                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
-                </div>
-              ) : (
-                <>
-                  <p className="text-3xl font-bold text-blue-600">{certificateCount}</p>
-                  <p className="text-sm text-gray-500">Credentials Earned</p>
-                </>
-              )}
+              <p className="text-3xl font-bold text-blue-600">0</p>
+              <p className="text-sm text-gray-500">Credentials Earned</p>
             </div>
           </div>
 
