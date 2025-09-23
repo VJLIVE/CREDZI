@@ -231,8 +231,11 @@ const CredentialsPage = () => {
                       <span className="text-xs font-mono text-gray-700">{certificate.assetId}</span>
                     </div>
                     <div className="flex gap-2">
-                      <button className="flex-1 bg-blue-600 text-white py-2 px-3 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">
-                        View Details
+                      <button 
+                        onClick={() => router.push(`/verify?assetId=${certificate.assetId}`)}
+                        className="flex-1 bg-blue-600 text-white py-2 px-3 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
+                      >
+                        Verify on Blockchain
                       </button>
                       <button className="flex-1 bg-gray-100 text-gray-700 py-2 px-3 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors">
                         Download

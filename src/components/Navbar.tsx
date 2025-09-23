@@ -57,6 +57,12 @@ const Navbar = () => {
               >
                 Home
               </Link>
+              <Link 
+                href="/verify" 
+                className="text-gray-600 hover:text-blue-600 px-3 py-2 text-sm font-medium transition-colors"
+              >
+                Verify
+              </Link>
               {!isAuthenticated && (
                 <>
                   <Link 
@@ -64,12 +70,6 @@ const Navbar = () => {
                     className="text-gray-600 hover:text-blue-600 px-3 py-2 text-sm font-medium transition-colors"
                   >
                     How it Works
-                  </Link>
-                  <Link 
-                    href="#verify" 
-                    className="text-gray-600 hover:text-blue-600 px-3 py-2 text-sm font-medium transition-colors"
-                  >
-                    Verify
                   </Link>
                   <Link 
                     href="#about" 
@@ -178,6 +178,13 @@ const Navbar = () => {
               >
                 Home
               </Link>
+              <Link 
+                href="/verify" 
+                className="text-gray-600 hover:text-blue-600 block px-3 py-2 text-base font-medium transition-colors"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Verify
+              </Link>
               {!isAuthenticated && (
                 <>
                   <Link 
@@ -186,13 +193,6 @@ const Navbar = () => {
                     onClick={() => setIsMenuOpen(false)}
                   >
                     How it Works
-                  </Link>
-                  <Link 
-                    href="#verify" 
-                    className="text-gray-600 hover:text-blue-600 block px-3 py-2 text-base font-medium transition-colors"
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                    Verify
                   </Link>
                   <Link 
                     href="#about" 
