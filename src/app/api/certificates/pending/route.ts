@@ -14,7 +14,7 @@ export async function GET(req: NextRequest) {
     const offset = parseInt(searchParams.get('offset') || '0');
 
     // Build query for pending certificates (not transferred)
-    const query: any = {
+    const query: Record<string, unknown> = {
       transferredToLearner: { $ne: true }, // Not transferred or false
     };
 

@@ -128,18 +128,19 @@ export async function POST(request: NextRequest) {
       { status: 200 }
     );
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Metadata upload error:', error);
+    const err = error as Error;
 
-    if (error.message.includes('IPFS')) {
+    if (err.message?.includes('IPFS')) {
       return NextResponse.json(
-        { error: 'Failed to upload metadata to IPFS', details: error.message },
+        { error: 'Failed to upload metadata to IPFS', details: err.message },
         { status: 500 }
       );
     }
 
     return NextResponse.json(
-      { error: 'Internal server error', details: error.message },
+      { error: 'Internal server error', details: err.message || 'Unknown error' },
       { status: 500 }
     );
   }

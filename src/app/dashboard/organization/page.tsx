@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useWalletAuth } from '@/hooks/useWalletAuth';
 import Navbar from '@/components/Navbar';
 import IssueCertificateForm, { CertificateFormData } from '@/components/IssueCertificateForm';
-import { prepareAndSignCertificateTransaction, prepareAndSignTransferTransaction, prepareAndSignOptInTransaction, checkAssetOptInStatus } from '@/lib/algorandUtils';
+import { prepareAndSignCertificateTransaction, prepareAndSignTransferTransaction, checkAssetOptInStatus } from '@/lib/algorandUtils';
 
 interface IssuedCertificate {
   id: string;
@@ -189,20 +189,21 @@ Please share the Asset ID (${successData.certificate.assetId}) with the learner 
       // Clear success message after 5 seconds
       setTimeout(() => setSuccessMessage(''), 5000);
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Certificate issuance error:', error);
+      const err = error as Error;
       
       // Handle specific wallet errors
-      if (error.message.includes('User rejected')) {
+      if (err.message?.includes('User rejected')) {
         setErrorMessage('Transaction was cancelled by user.');
-      } else if (error.message.includes('Wallet not connected')) {
-        setErrorMessage(error.message);
-      } else if (error.message.includes('not opted in')) {
-        setErrorMessage(error.message + ' The certificate has been created but needs to be transferred manually.');
-      } else if (error.message.includes('insufficient')) {
+      } else if (err.message?.includes('Wallet not connected')) {
+        setErrorMessage(err.message);
+      } else if (err.message?.includes('not opted in')) {
+        setErrorMessage(err.message + ' The certificate has been created but needs to be transferred manually.');
+      } else if (err.message?.includes('insufficient')) {
         setErrorMessage('Insufficient ALGO balance for transaction fees. Please add ALGO to your wallet.');
       } else {
-        setErrorMessage(error.message || 'Failed to issue certificate. Please try again.');
+        setErrorMessage(err.message || 'Failed to issue certificate. Please try again.');
       }
     } finally {
       setIsIssuing(false);

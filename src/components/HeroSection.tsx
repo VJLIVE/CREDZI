@@ -94,7 +94,7 @@ const HeroSection = () => {
                 </svg>
               )
             }
-          ].map((feature, index) => (
+          ].map((feature) => (
             <div key={feature.title} className="text-center">
               <div className="bg-blue-50 w-16 h-16 rounded-lg flex items-center justify-center mx-auto mb-4">
                 {feature.icon}

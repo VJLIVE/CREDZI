@@ -23,6 +23,17 @@ export const useWalletAuth = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [peraWallet, setPeraWallet] = useState<PeraWalletConnect | null>(null);
 
+  const handleDisconnect = useCallback(() => {
+    setIsWalletConnected(false);
+    setConnectedWallet(null);
+    setUser(null);
+    sessionStorage.removeItem('credzi_user');
+    const currentPath = window.location.pathname;
+    if (currentPath.startsWith('/dashboard')) {
+      router.push('/');
+    }
+  }, [router]);
+
   // Initialize Pera Wallet
   useEffect(() => {
     const wallet = new PeraWalletConnect({
@@ -55,7 +66,7 @@ export const useWalletAuth = () => {
         wallet.connector.off('disconnect');
       }
     };
-  }, []);
+  }, [handleDisconnect]);
 
   const checkUserInDatabase = async (walletId: string) => {
     try {
@@ -84,18 +95,6 @@ export const useWalletAuth = () => {
     }
   };
 
-  const handleDisconnect = useCallback(() => {
-    setIsWalletConnected(false);
-    setConnectedWallet(null);
-    setUser(null);
-    sessionStorage.removeItem('credzi_user');
-    
-    // Redirect to home if user is on a protected route
-    const currentPath = window.location.pathname;
-    if (currentPath.startsWith('/dashboard')) {
-      router.push('/');
-    }
-  }, [router]);
 
   const disconnect = () => {
     if (peraWallet) {

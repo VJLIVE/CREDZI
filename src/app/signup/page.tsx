@@ -39,7 +39,7 @@ const SignUpPage = () => {
     setConnectedWallet(null);
   }, []);
 
-  const handleUserFound = useCallback((user: any) => {
+  const handleUserFound = useCallback((user: { role: string }) => {
     // Redirect to appropriate dashboard based on user role
     if (user.role === 'learner') {
       router.push('/dashboard/learner');

@@ -27,7 +27,8 @@ interface LearnerProfileProps {
 }
 
 const LearnerProfile = ({ user }: LearnerProfileProps) => {
-  const { disconnect } = useWalletAuth();
+  // disconnect not used here currently; remove to satisfy lint
+  useWalletAuth();
   const [isEditing, setIsEditing] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
