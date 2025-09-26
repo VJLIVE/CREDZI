@@ -4,110 +4,108 @@ import { motion } from 'framer-motion';
 
 const HeroSection = () => {
   return (
-    <section className="relative bg-white py-24 px-6 lg:px-12">
-      <div className="max-w-7xl mx-auto text-center">
-
-        {/* Professional Algorand Badge */}
-        <motion.div
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="inline-flex items-center px-6 py-3 rounded-full bg-gray-50 shadow-md mb-10"
-        >
-          {/* Algorand Logo */}
-          <img
-            src="https://imgs.search.brave.com/UR09hCJEx4_5d_h6j914EsB5ExduABAsAkr0V0RmLA8/rs:fit:500:0:1:0/g:ce/aHR0cHM6Ly90aHVt/YnMuZHJlYW1zdGlt/ZS5jb20vYi9hbGdv/cmFuZC1hbGdvLXB1/cnBsZS1kZXNpZ24t/dGVjaG5vbG9neS1i/YWNrZ3JvdW5kLWNy/eXB0by1jdXJyZW5j/eS1kaWdpdGFsLW1v/bmV5LWV4Y2hhbmdl/LXZlY2hhaW4tMjQz/NjkzNzI3LmpwZw"
-            alt="Algorand Logo"
-            className="w-6 h-6 mr-3"
-          />
-          <span className="text-gray-800 font-semibold text-sm">
+    <section className="bg-white py-16 px-6 lg:px-8">
+      <div className="max-w-6xl mx-auto">
+        
+        {/* Simple, clean header section */}
+        <div className="text-center mb-16">
+          
+          {/* Subtle badge - no glass morphism */}
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="inline-flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-700 rounded-full text-sm font-medium mb-8"
+          >
+            <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
             Powered by Algorand Blockchain
-          </span>
-        </motion.div>
+          </motion.div>
 
-        {/* Headline */}
-        <motion.h1
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-black leading-tight mb-6"
-        >
-          The Future of Digital Credentials
-        </motion.h1>
+          {/* Clean, readable headline */}
+          <motion.h1
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 leading-tight mb-6"
+          >
+            Prove Your Skills,
+            <br />
+            <span className="text-blue-600">Advance Your Career</span>
+          </motion.h1>
 
-        {/* Subheadline */}
-        <motion.p
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="text-lg sm:text-xl lg:text-2xl text-gray-600 max-w-3xl mx-auto mb-10 leading-relaxed"
-        >
-          Secure, transparent, and tamper-proof platform for digital skill
-          certificates. Institutions issue, learners own for life, employers
-          verify instantly.
-        </motion.p>
+          {/* Clear, professional description */}
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="text-xl text-gray-600 max-w-3xl mx-auto mb-12 leading-relaxed"
+          >
+            Secure, blockchain-verified certificates for vocational skills and professional training. 
+            Helping learners prove their expertise and employers verify qualifications instantly.
+          </motion.p>
 
-        {/* Feature highlights */}
-        <div className="flex flex-wrap justify-center gap-6 mb-14 text-base sm:text-lg">
-          {[
-            'Blockchain Secured',
-            'Instant Verification',
-            'Global Portability',
-            'QR-Based Access',
-          ].map((feature, i) => (
-            <motion.div
-              key={feature}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 + i * 0.1 }}
-              className="flex items-center px-5 py-3 rounded-lg bg-gray-50 shadow-sm hover:shadow-md transition"
-            >
-              <svg
-                className="w-5 h-5 text-green-500 mr-2 flex-shrink-0"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-              >
-                <path
-                  fillRule="evenodd"
-                  d="M16.707 5.293a1 1 0 010 1.414l-8 
-                  8a1 1 0 01-1.414 0l-4-4a1 1 
-                  0 011.414-1.414L8 12.586l7.293-7.293a1 
-                  1 0 011.414 0z"
-                  clipRule="evenodd"
-                />
-              </svg>
-              <span className="text-black font-medium">{feature}</span>
-            </motion.div>
-          ))}
+          {/* Simple, effective CTA */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="flex flex-col sm:flex-row justify-center gap-4"
+          >
+            <button className="bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
+              Get Started
+            </button>
+            <button className="border border-gray-300 text-gray-700 px-8 py-3 rounded-lg font-semibold hover:border-gray-400 transition-colors">
+              Learn More
+            </button>
+          </motion.div>
         </div>
 
-        {/* CTA Button */}
+        {/* Key features - clean and professional */}
         <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.6 }}
-          className="flex justify-center"
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
+          className="grid md:grid-cols-3 gap-8 mb-16"
         >
-          <button className="bg-blue-600 text-white px-10 py-4 rounded-lg text-lg font-semibold w-full sm:w-auto">
-            Get Started
-          </button>
+          {[
+            {
+              title: 'Skill Verification',
+              description: 'Blockchain-secured certificates that prove vocational skills and professional competencies.',
+              icon: (
+                <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.031 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                </svg>
+              )
+            },
+            {
+              title: 'Employer Recognition',
+              description: 'Employers can instantly verify candidate skills and training completion through QR codes.',
+              icon: (
+                <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+              )
+            },
+            {
+              title: 'Career Mobility',
+              description: 'Portable certificates that move with you across jobs, industries, and geographical locations.',
+              icon: (
+                <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              )
+            }
+          ].map((feature, index) => (
+            <div key={feature.title} className="text-center">
+              <div className="bg-blue-50 w-16 h-16 rounded-lg flex items-center justify-center mx-auto mb-4">
+                {feature.icon}
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">{feature.title}</h3>
+              <p className="text-gray-600 text-sm leading-relaxed">{feature.description}</p>
+            </div>
+          ))}
         </motion.div>
 
-        {/* Trust Indicators */}
-        <div className="mt-20 pt-10 border-t border-gray-200">
-          <p className="text-gray-500 text-sm mb-8">
-            Trusted by leading institutions
-          </p>
-          <div className="flex flex-wrap justify-center items-center gap-10 opacity-90">
-            {['Institution 1', 'Institution 2', 'Institution 3', 'Institution 4'].map((name) => (
-              <div
-                key={name}
-                className="h-14 w-36 rounded-md flex items-center justify-center bg-gray-100 text-gray-700 font-semibold shadow-sm hover:shadow-md transition"
-              >
-                {name}
-              </div>
-            ))}
-          </div>
-        </div>
+
       </div>
     </section>
   );
