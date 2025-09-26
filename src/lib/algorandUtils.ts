@@ -29,7 +29,7 @@ const getAlgodClient = () => {
  * Prepares an asset creation transaction
  */
 export const prepareAssetCreationTransaction = async (params: TransactionPrepareParams) => {
-  const { issuerWallet, learnerWallet, ipfsHash, assetName, unitName } = params;
+  const { issuerWallet, ipfsHash, assetName, unitName } = params;
   
   try {
     const algodClient = getAlgodClient();
@@ -346,9 +346,11 @@ export const checkAssetOptInStatus = async (
     console.log('Account info received, checking assets...');
     
     // Log all assets for debugging
-    if (accountInfo.assets) {
-      console.log('Assets in wallet:', accountInfo.assets.map((asset: any) => ({
-        'asset-id': asset['asset-id'],
+    type GenericAssetHolding = { [key: string]: unknown } & { amount?: number };
+    if (Array.isArray(accountInfo.assets)) {
+      const assetsArray = accountInfo.assets as unknown as GenericAssetHolding[];
+      console.log('Assets in wallet:', assetsArray.map((asset) => ({
+        'asset-id': (asset as Record<string, unknown>)['asset-id'],
         amount: asset.amount
       })));
     } else {
@@ -356,16 +358,21 @@ export const checkAssetOptInStatus = async (
     }
     
     // Check if the asset exists in the account's assets
-    const assetHolding = accountInfo.assets?.find((asset: any) => asset['asset-id'] === assetId);
+    const assetHolding = Array.isArray(accountInfo.assets)
+      ? (accountInfo.assets as unknown as GenericAssetHolding[]).find((asset) => (asset as Record<string, unknown>)['asset-id'] === assetId)
+      : undefined;
     
     const isOptedIn = !!assetHolding;
     console.log(`Asset ${assetId} opt-in status: ${isOptedIn}`);
     
     if (assetHolding) {
+      const assetIdValue = (assetHolding as Record<string, unknown>)['asset-id'];
+      const amountValue = (assetHolding as { amount?: number }).amount ?? 0;
+      const frozenValue = (assetHolding as Record<string, unknown>)['is-frozen'] ?? false;
       console.log('Asset holding details:', {
-        'asset-id': (assetHolding as any)['asset-id'],
-        amount: (assetHolding as any).amount,
-        'is-frozen': (assetHolding as any)['is-frozen'] || false
+        'asset-id': assetIdValue,
+        amount: amountValue,
+        'is-frozen': frozenValue,
       });
     }
     

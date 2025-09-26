@@ -176,7 +176,7 @@ const CredentialsPage = () => {
                 </svg>
               </div>
               <h3 className="text-xl font-semibold text-gray-700 mb-2">No Credentials Yet</h3>
-              <p className="text-gray-500">You haven't earned any credentials yet. Start learning to earn your first certificate!</p>
+              <p className="text-gray-500">You haven&apos;t earned any credentials yet. Start learning to earn your first certificate!</p>
             </div>
           ) : (
             /* Certificates Grid */

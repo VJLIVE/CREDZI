@@ -30,7 +30,8 @@ interface OrganizationProfileProps {
 }
 
 const OrganizationProfile = ({ user }: OrganizationProfileProps) => {
-  const { disconnect } = useWalletAuth();
+  // disconnect not used in this component; invoke hook for user data
+  useWalletAuth();
   const [isEditing, setIsEditing] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -89,9 +90,7 @@ const OrganizationProfile = ({ user }: OrganizationProfileProps) => {
     }
   };
 
-  const getDashboardLink = () => {
-    return user.role === 'admin' ? '/dashboard/organization' : '/dashboard/organization';
-  };
+  // getDashboardLink helper removed (was redundant) to satisfy lint
 
   return (
     <>

@@ -70,19 +70,20 @@ export async function POST(request: NextRequest) {
       },
       { status: 201 }
     );
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Signup error:', error);
+    const err = error as Error & { code?: number; name?: string; errors?: Record<string, { message: string }> };
 
-    if (error.code === 11000) {
+    if (err.code === 11000) {
       return NextResponse.json(
         { error: 'User with this email already exists' },
         { status: 409 }
       );
     }
 
-    if (error.name === 'ValidationError') {
-      const validationErrors = Object.values(error.errors).map(
-        (err: any) => err.message
+    if (err.name === 'ValidationError') {
+      const validationErrors = Object.values(err.errors || {}).map(
+        (validationErr) => validationErr.message
       );
       return NextResponse.json(
         { error: 'Validation failed', details: validationErrors },

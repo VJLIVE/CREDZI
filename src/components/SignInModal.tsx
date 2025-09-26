@@ -4,6 +4,17 @@ import { useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import PeraWallet from './PeraWallet';
 
+interface CredziUser {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  role: 'learner' | 'organization' | 'admin';
+  walletId: string;
+  organizationName?: string;
+  [key: string]: unknown;
+}
+
 interface SignInModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -27,7 +38,7 @@ const SignInModal = ({ isOpen, onClose }: SignInModalProps) => {
     setError(null);
   }, []);
 
-  const handleUserFound = useCallback((user: any) => {
+  const handleUserFound = useCallback((user: CredziUser) => {
     // Close modal and redirect to appropriate dashboard
     onClose();
     if (user.role === 'learner') {
@@ -102,7 +113,7 @@ const SignInModal = ({ isOpen, onClose }: SignInModalProps) => {
 
           {/* Footer */}
           <div className="text-center text-sm text-gray-500">
-            <p>Don't have an account?</p>
+            <p>Don&apos;t have an account?</p>
             <button
               onClick={() => {
                 onClose();

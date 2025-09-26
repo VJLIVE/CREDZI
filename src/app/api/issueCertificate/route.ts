@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import dbConnect from '@/lib/mongodb';
 import Certificate from '@/models/Certificate';
-import User from '@/models/User';
 import algosdk from 'algosdk';
 
 // Types for the API
@@ -43,42 +42,6 @@ interface ARC69Metadata {
   };
 }
 
-// Pinata IPFS upload function
-async function uploadToIPFS(metadata: ARC69Metadata): Promise<string> {
-  const pinataApiKey = process.env.PINATA_API_KEY;
-  const pinataSecretApiKey = process.env.PINATA_SECRET_API_KEY;
-  
-  if (!pinataApiKey || !pinataSecretApiKey) {
-    throw new Error('Pinata API credentials not configured');
-  }
-
-  const pinataEndpoint = 'https://api.pinata.cloud/pinning/pinJSONToIPFS';
-  
-  const data = {
-    pinataContent: metadata,
-    pinataMetadata: {
-      name: `Certificate-${metadata.properties.learner_name}-${metadata.properties.course_name}`,
-    },
-  };
-
-  const response = await fetch(pinataEndpoint, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'pinata_api_key': pinataApiKey,
-      'pinata_secret_api_key': pinataSecretApiKey,
-    },
-    body: JSON.stringify(data),
-  });
-
-  if (!response.ok) {
-    const errorData = await response.text();
-    throw new Error(`Failed to upload to IPFS: ${response.status} ${errorData}`);
-  }
-
-  const result = await response.json();
-  return result.IpfsHash;
-}
 
 // Algorand NFT minting function using pre-signed transaction
 async function submitSignedTransaction(
@@ -240,26 +203,27 @@ export async function POST(request: NextRequest) {
       { status: 201 }
     );
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Certificate issuance error:', error);
+    const err = error as Error & { name?: string; code?: number; errors?: Record<string, { message: string }> };
 
-    if (error.message.includes('IPFS')) {
+    if (err.message?.includes('IPFS')) {
       return NextResponse.json(
-        { error: 'Failed to upload metadata to IPFS', details: error.message },
+        { error: 'Failed to upload metadata to IPFS', details: err.message },
         { status: 500 }
       );
     }
 
-    if (error.message.includes('Algorand') || error.message.includes('algod')) {
+    if (err.message?.includes('Algorand') || err.message?.includes('algod')) {
       return NextResponse.json(
-        { error: 'Failed to mint NFT on Algorand', details: error.message },
+        { error: 'Failed to mint NFT on Algorand', details: err.message },
         { status: 500 }
       );
     }
 
-    if (error.name === 'ValidationError') {
-      const validationErrors = Object.values(error.errors).map(
-        (err: any) => err.message
+    if (err.name === 'ValidationError') {
+      const validationErrors = Object.values(err.errors || {}).map(
+        (validationErr) => validationErr.message
       );
       return NextResponse.json(
         { error: 'Validation failed', details: validationErrors },
@@ -267,7 +231,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (error.code === 11000) {
+    if (err.code === 11000) {
       return NextResponse.json(
         { error: 'Certificate with this asset ID already exists' },
         { status: 409 }
@@ -275,7 +239,7 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json(
-      { error: 'Internal server error', details: error.message },
+      { error: 'Internal server error', details: err.message || 'Unknown error' },
       { status: 500 }
     );
   }

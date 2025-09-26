@@ -1,12 +1,24 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { PeraWalletConnect } from '@perawallet/connect';
+
+interface CredziUser {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  role: 'learner' | 'organization' | 'admin';
+  walletId: string;
+  organizationName?: string;
+  // Allow passthrough of any additional fields without using any
+  [key: string]: unknown;
+}
 
 interface PeraWalletProps {
   onWalletConnect: (walletId: string) => void;
   onWalletDisconnect: () => void;
-  onUserFound?: (user: any) => void;
+  onUserFound?: (user: CredziUser) => void;
   onUserNotFound?: () => void;
   isConnected: boolean;
   connectedWallet: string | null;
@@ -17,7 +29,7 @@ const PeraWallet = ({ onWalletConnect, onWalletDisconnect, onUserFound, onUserNo
   const [isLoading, setIsLoading] = useState(false);
   const [checkingUser, setCheckingUser] = useState(false);
 
-  const checkWalletInDatabase = async (walletId: string) => {
+  const checkWalletInDatabase = useCallback(async (walletId: string): Promise<{ exists: boolean; user?: CredziUser }> => {
     setCheckingUser(true);
     try {
       const response = await fetch('/api/wallet-check', {
@@ -28,9 +40,9 @@ const PeraWallet = ({ onWalletConnect, onWalletDisconnect, onUserFound, onUserNo
         body: JSON.stringify({ walletId }),
       });
 
-      const data = await response.json();
+  const data: { exists: boolean; user?: CredziUser } = await response.json();
       
-      if (data.exists && onUserFound) {
+      if (data.exists && data.user && onUserFound) {
         // Store user data in session storage
         sessionStorage.setItem('credzi_user', JSON.stringify(data.user));
         onUserFound(data.user);
@@ -45,7 +57,7 @@ const PeraWallet = ({ onWalletConnect, onWalletDisconnect, onUserFound, onUserNo
     } finally {
       setCheckingUser(false);
     }
-  };
+  }, [onUserFound, onUserNotFound]);
 
   useEffect(() => {
     // Initialize Pera Wallet
@@ -61,7 +73,7 @@ const PeraWallet = ({ onWalletConnect, onWalletDisconnect, onUserFound, onUserNo
         // Check if this wallet exists in database
         checkWalletInDatabase(accounts[0]);
       }
-    }).catch((e) => {
+    }).catch(() => {
       console.log('No existing session found');
     });
 
@@ -76,7 +88,7 @@ const PeraWallet = ({ onWalletConnect, onWalletDisconnect, onUserFound, onUserNo
         wallet.connector.off('disconnect');
       }
     };
-  }, [onWalletConnect, onWalletDisconnect]);
+  }, [onWalletConnect, onWalletDisconnect, checkWalletInDatabase]);
 
   const handleConnect = async () => {
     if (!peraWallet) return;

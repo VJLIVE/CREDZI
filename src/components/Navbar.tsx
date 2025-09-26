@@ -9,7 +9,7 @@ const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSignInModalOpen, setIsSignInModalOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const { user, isAuthenticated, hasRole, disconnect } = useWalletAuth();
+  const { user, isAuthenticated, disconnect } = useWalletAuth();
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {

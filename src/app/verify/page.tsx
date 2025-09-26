@@ -1,8 +1,24 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useState, useEffect, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import Navbar from '@/components/Navbar';
+
+interface CertificateMetadata {
+  description?: string;
+  properties?: {
+    certificate_type?: string;
+    grade?: string;
+    score?: number;
+    issue_date?: string;
+    valid_from?: string;
+    valid_until?: string;
+    skills?: string[];
+    learner_name?: string;
+    course_name?: string;
+    organization_name?: string;
+  };
+}
 
 interface NFTDetails {
   assetId: number;
@@ -18,7 +34,7 @@ interface NFTDetails {
   reserve: string | null;
   freeze: string | null;
   clawback: string | null;
-  metadata: any;
+  metadata: CertificateMetadata | null;
   createdAtRound: number | null;
   destroyed: boolean;
   ipfsHash: string | null;
@@ -33,8 +49,7 @@ interface VerificationResponse {
   error?: string;
 }
 
-const VerifyPage = () => {
-  const router = useRouter();
+const VerifyPageInner = () => {
   const searchParams = useSearchParams();
   const [assetId, setAssetId] = useState<string>('');
   const [nftDetails, setNftDetails] = useState<NFTDetails | null>(null);
@@ -403,5 +418,11 @@ const VerifyPage = () => {
     </>
   );
 };
+
+const VerifyPage = () => (
+  <Suspense fallback={<div className="min-h-screen"><Navbar /><div className="p-8 text-center text-gray-600">Loading verification interface...</div></div>}>
+    <VerifyPageInner />
+  </Suspense>
+);
 
 export default VerifyPage;

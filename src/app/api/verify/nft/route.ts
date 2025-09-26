@@ -102,8 +102,8 @@ export async function GET(request: NextRequest) {
       metadata: metadata,
       
       // Additional blockchain info
-      createdAtRound: (assetInfo as any)['created-at-round'] || null,
-      destroyed: (assetInfo as any).destroyed || false,
+      createdAtRound: (assetInfo as { 'created-at-round'?: number; destroyed?: boolean })['created-at-round'] || null,
+      destroyed: (assetInfo as { 'created-at-round'?: number; destroyed?: boolean }).destroyed || false,
       
       // Extract IPFS hash from URL
       ipfsHash: assetParams.url ? assetParams.url.match(/ipfs\/([^/?]+)/)?.[1] : null,
@@ -119,18 +119,19 @@ export async function GET(request: NextRequest) {
       source: 'blockchain'
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error fetching NFT details from blockchain:', error);
+    const err = error as Error;
     
     // Handle specific Algorand errors
-    if (error.message?.includes('asset does not exist')) {
+    if (err.message?.includes('asset does not exist')) {
       return NextResponse.json(
         { error: 'Asset does not exist on the blockchain' },
         { status: 404 }
       );
     }
     
-    if (error.message?.includes('network')) {
+    if (err.message?.includes('network')) {
       return NextResponse.json(
         { error: 'Network error while connecting to blockchain' },
         { status: 503 }

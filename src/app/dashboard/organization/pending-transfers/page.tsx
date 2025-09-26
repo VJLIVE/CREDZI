@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useWalletAuth } from '@/hooks/useWalletAuth';
 import { prepareAndSignTransferTransaction, checkAssetOptInStatus } from '@/lib/algorandUtils';
 import { PeraWalletConnect } from '@perawallet/connect';
@@ -38,7 +38,7 @@ const TransferButton: React.FC<TransferButtonProps> = ({
   const [error, setError] = useState('');
   const [showDebug, setShowDebug] = useState(false);
 
-  const checkOptInStatus = async () => {
+  const checkOptInStatus = useCallback(async () => {
     setIsCheckingOptIn(true);
     setError('');
     try {
@@ -66,7 +66,7 @@ const TransferButton: React.FC<TransferButtonProps> = ({
     } finally {
       setIsCheckingOptIn(false);
     }
-  };
+  }, [certificate.assetId, certificate.learnerWallet]);
 
   const handleTransfer = async () => {
     if (!peraWallet || !connectedWallet) {
@@ -111,14 +111,15 @@ const TransferButton: React.FC<TransferButtonProps> = ({
       onTransferComplete(certificate.id);
       setError('');
       
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Transfer error:', error);
-      if (error.message.includes('User rejected')) {
+      const err = error as Error;
+      if (err.message?.includes('User rejected')) {
         setError('Transaction was cancelled by user');
-      } else if (error.message.includes('asset not found') || error.message.includes('not opted')) {
+      } else if (err.message?.includes('asset not found') || err.message?.includes('not opted')) {
         setError('Learner has not opted into this asset. Please ask them to opt-in first.');
       } else {
-        setError(error.message || 'Transfer failed');
+        setError(err.message || 'Transfer failed');
       }
     } finally {
       setIsTransferring(false);
@@ -126,9 +127,8 @@ const TransferButton: React.FC<TransferButtonProps> = ({
   };
 
   useEffect(() => {
-    // Check opt-in status when component mounts
     checkOptInStatus();
-  }, [certificate.assetId, certificate.learnerWallet]);
+  }, [checkOptInStatus]);
 
   return (
     <div className="flex flex-col gap-2">
@@ -197,7 +197,7 @@ const TransferButton: React.FC<TransferButtonProps> = ({
         <div className="text-blue-600 text-sm mt-1">
           <div>Asset ID: <strong>{certificate.assetId}</strong></div>
           <div className="text-xs mt-1">
-            Opt-in status check disabled. Transfer will proceed and fail if learner hasn't opted in.
+            Opt-in status check disabled. Transfer will proceed and fail if learner hasn&apos;t opted in.
           </div>
         </div>
       )}
@@ -223,9 +223,10 @@ export default function PendingTransfersPage() {
 
       const data = await response.json();
       setPendingCertificates(data.certificates || []);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error fetching pending certificates:', error);
-      setError(error.message || 'Failed to load pending certificates');
+      const err = error as Error;
+      setError(err.message || 'Failed to load pending certificates');
     } finally {
       setLoading(false);
     }
