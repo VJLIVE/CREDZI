@@ -1,5 +1,7 @@
 'use client';
 
+import { motion } from 'framer-motion';
+
 const HowItWorksSection = () => {
   const steps = [
     {
@@ -92,9 +94,69 @@ const HowItWorksSection = () => {
     },
   ];
 
+  const nodes = [
+    [5, 10], [10, 20], [20, 30], [30, 40], [40, 50],
+    [50, 60], [15, 65], [25, 70], [35, 20], [60, 15],
+    [70, 35], [85, 20], [80, 55], [90, 75], [95, 40]
+  ];
+
+  const lines = [
+    [5, 10, 35, 15], [10, 20, 40, 10], [20, 30, 60, 25],
+    [30, 40, 70, 35], [40, 50, 80, 45], [50, 60, 90, 55],
+    [15, 65, 45, 75], [25, 70, 60, 80], [35, 20, 75, 10],
+    [60, 15, 85, 20], [70, 35, 95, 40]
+  ];
+
   return (
-    <section className="py-28 px-6 lg:px-12 bg-gray-50">
-      <div className="max-w-7xl mx-auto">
+    <section className="relative py-28 px-6 lg:px-12 bg-gradient-to-br from-blue-50 via-indigo-50 to-blue-100 overflow-hidden">
+      {/* Animated Background */}
+      <svg className="absolute inset-0 w-full h-full opacity-30 pointer-events-none">
+        <g stroke="#94a3b8" strokeWidth="0.5">
+          {lines.map(([x1, y1, x2, y2], idx) => (
+            <motion.line
+              key={idx}
+              x1={`${x1}%`}
+              y1={`${y1}%`}
+              x2={`${x2}%`}
+              y2={`${y2}%`}
+              animate={{
+                x1: [`${x1}%`, `${x1 + Math.random()*5 - 2.5}%`, `${x1}%`],
+                y1: [`${y1}%`, `${y1 + Math.random()*5 - 2.5}%`, `${y1}%`],
+                x2: [`${x2}%`, `${x2 + Math.random()*5 - 2.5}%`, `${x2}%`],
+                y2: [`${y2}%`, `${y2 + Math.random()*5 - 2.5}%`, `${y2}%`],
+              }}
+              transition={{
+                duration: 8 + Math.random()*4,
+                repeat: Infinity,
+                repeatType: "mirror",
+                ease: "easeInOut",
+              }}
+            />
+          ))}
+        </g>
+        <g fill="#60a5fa">
+          {nodes.map(([cx, cy], idx) => (
+            <motion.circle
+              key={idx}
+              cx={`${cx}%`}
+              cy={`${cy}%`}
+              r="4"
+              animate={{
+                cx: [`${cx}%`, `${cx + Math.random()*5 - 2.5}%`, `${cx}%`],
+                cy: [`${cy}%`, `${cy + Math.random()*5 - 2.5}%`, `${cy}%`],
+              }}
+              transition={{
+                duration: 6 + Math.random()*4,
+                repeat: Infinity,
+                repeatType: "mirror",
+                ease: "easeInOut",
+              }}
+            />
+          ))}
+        </g>
+      </svg>
+
+      <div className="relative max-w-4xl mx-auto">
         {/* Header */}
         <div className="text-center mb-24">
           <h2 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-4">
@@ -105,74 +167,34 @@ const HowItWorksSection = () => {
           </p>
         </div>
 
-        {/* Steps */}
-        <div className="grid gap-16 lg:gap-24">
-          {steps.map((step, index) => (
-            <div
-              key={index}
-              className={`flex flex-col lg:flex-row items-center ${
-                index % 2 === 1 ? "lg:flex-row-reverse" : ""
-              }`}
-            >
-              {/* Icon with number */}
-              <div className="flex-shrink-0 flex flex-col items-center lg:items-start lg:mr-12 mb-6 lg:mb-0">
-                <div
-                  className={`w-16 h-16 rounded-full bg-gradient-to-r ${step.color} flex items-center justify-center text-white shadow-md`}
-                >
-                  {step.icon}
-                </div>
-                <div className="text-2xl font-bold text-gray-900 mt-4">
-                  Step {step.number}
-                </div>
-              </div>
+        {/* Vertical timeline with horizontal branches */}
+        <div className="relative">
+          {/* Central vertical line */}
+          <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-1 bg-gray-300 h-full"></div>
 
-              {/* Text */}
-              <div className="flex-1 max-w-xl text-center lg:text-left">
-                <h3 className="text-2xl font-semibold text-gray-900 mb-2">
-                  {step.title}
-                </h3>
-                <p className="text-gray-600 text-lg leading-relaxed">
-                  {step.description}
-                </p>
-              </div>
-            </div>
-          ))}
-        </div>
+          {steps.map((step, index) => {
+            const isLeft = index % 2 === 0;
+            return (
+              <div key={index} className="relative mb-32 w-full flex">
+                {/* Horizontal branch */}
+                <div className={`absolute top-10 ${isLeft ? 'left-1/2 w-1/2' : 'left-0 w-1/2'} h-1 bg-gray-300`}></div>
 
-        {/* Process Flow */}
-        <div className="mt-28 bg-white rounded-3xl p-10 shadow-xl">
-          <h3 className="text-2xl font-bold text-center text-gray-900 mb-10">
-            Complete Process Flow
-          </h3>
-          <div className="flex flex-col md:flex-row items-center justify-between space-y-12 md:space-y-0 md:space-x-6">
-            {steps.map((step, index) => (
-              <div key={index} className="flex flex-col items-center text-center relative">
-                <div
-                  className={`w-20 h-20 rounded-full bg-gradient-to-r ${step.color} flex items-center justify-center text-white mb-4 shadow-lg`}
-                >
-                  {step.icon}
-                </div>
-                <div className="text-sm font-semibold text-gray-900">{step.title}</div>
-
-                {/* Arrows between steps */}
-                {index < steps.length - 1 && (
-                  <div className="hidden md:block absolute right-[-80px] top-1/2 transform -translate-y-1/2">
-                    <svg
-                      className="w-8 h-8 text-gray-300"
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M10.293 15.707a1 1 0 010-1.414L14.586 10l-4.293-4.293a1 1 0 111.414-1.414l5 5a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
+                {/* Box */}
+                <div className={`relative ${isLeft ? 'mr-auto pr-8 text-right' : 'ml-auto pl-8 text-left'} max-w-md`}>
+                  <div className="bg-white rounded-2xl p-6 shadow-lg">
+                    <div className={`w-12 h-12 rounded-full bg-gradient-to-r ${step.color} flex items-center justify-center text-white mb-4 shadow-md`}>
+                      {step.icon}
+                    </div>
+                    <h3 className="text-xl font-semibold text-gray-900 mb-2">{step.title}</h3>
+                    <p className="text-gray-600 text-base">{step.description}</p>
                   </div>
-                )}
+                </div>
+
+                {/* Circle node */}
+                <div className="absolute top-10 left-1/2 transform -translate-x-1/2 w-6 h-6 bg-blue-500 rounded-full border-4 border-white"></div>
               </div>
-            ))}
-          </div>
+            );
+          })}
         </div>
       </div>
     </section>

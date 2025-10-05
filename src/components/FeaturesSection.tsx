@@ -1,3 +1,7 @@
+'use client';
+
+import { motion } from 'framer-motion';
+
 const FeaturesSection = () => {
   const features = [
     {
@@ -62,9 +66,70 @@ const FeaturesSection = () => {
     }
   ];
 
+  const nodes = [
+    [5, 10], [10, 20], [20, 30], [30, 40], [40, 50],
+    [50, 60], [15, 65], [25, 70], [35, 20], [60, 15],
+    [70, 35], [85, 20], [80, 55], [90, 75], [95, 40]
+  ];
+
+  const lines = [
+    [5, 10, 35, 15], [10, 20, 40, 10], [20, 30, 60, 25],
+    [30, 40, 70, 35], [40, 50, 80, 45], [50, 60, 90, 55],
+    [15, 65, 45, 75], [25, 70, 60, 80], [35, 20, 75, 10],
+    [60, 15, 85, 20], [70, 35, 95, 40]
+  ];
+
   return (
-    <section className="py-20 px-4 sm:px-6 lg:px-8 bg-white">
-      <div className="max-w-7xl mx-auto">
+    <section className="relative py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-blue-50 via-indigo-50 to-blue-100 overflow-hidden">
+
+      {/* Animated Network Background */}
+      <svg className="absolute inset-0 w-full h-full opacity-30 pointer-events-none">
+        <g stroke="#94a3b8" strokeWidth="0.5">
+          {lines.map(([x1, y1, x2, y2], idx) => (
+            <motion.line
+              key={idx}
+              x1={`${x1}%`}
+              y1={`${y1}%`}
+              x2={`${x2}%`}
+              y2={`${y2}%`}
+              animate={{
+                x1: [`${x1}%`, `${x1 + Math.random()*5 - 2.5}%`, `${x1}%`],
+                y1: [`${y1}%`, `${y1 + Math.random()*5 - 2.5}%`, `${y1}%`],
+                x2: [`${x2}%`, `${x2 + Math.random()*5 - 2.5}%`, `${x2}%`],
+                y2: [`${y2}%`, `${y2 + Math.random()*5 - 2.5}%`, `${y2}%`],
+              }}
+              transition={{
+                duration: 8 + Math.random()*4,
+                repeat: Infinity,
+                repeatType: "mirror",
+                ease: "easeInOut",
+              }}
+            />
+          ))}
+        </g>
+        <g fill="#60a5fa">
+          {nodes.map(([cx, cy], idx) => (
+            <motion.circle
+              key={idx}
+              cx={`${cx}%`}
+              cy={`${cy}%`}
+              r="4"
+              animate={{
+                cx: [`${cx}%`, `${cx + Math.random()*5 - 2.5}%`, `${cx}%`],
+                cy: [`${cy}%`, `${cy + Math.random()*5 - 2.5}%`, `${cy}%`],
+              }}
+              transition={{
+                duration: 6 + Math.random()*4,
+                repeat: Infinity,
+                repeatType: "mirror",
+                ease: "easeInOut",
+              }}
+            />
+          ))}
+        </g>
+      </svg>
+
+      <div className="relative max-w-7xl mx-auto">
         {/* Section Header */}
         <div className="text-center mb-16">
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 mb-6">
@@ -84,20 +149,15 @@ const FeaturesSection = () => {
           {features.map((feature, index) => (
             <div key={index} className="group relative">
               <div className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 border border-gray-100 h-full">
-                {/* Icon */}
                 <div className={`w-16 h-16 rounded-2xl bg-gradient-to-r ${feature.color} flex items-center justify-center text-white mb-6 group-hover:scale-110 transition-transform duration-300`}>
                   {feature.icon}
                 </div>
-
-                {/* Content */}
                 <h3 className="text-xl font-bold text-gray-900 mb-4">
                   {feature.title}
                 </h3>
                 <p className="text-gray-600 leading-relaxed">
                   {feature.description}
                 </p>
-
-                {/* Hover effect */}
                 <div className={`absolute inset-0 rounded-2xl bg-gradient-to-r ${feature.color} opacity-0 group-hover:opacity-5 transition-opacity duration-300`}></div>
               </div>
             </div>
@@ -106,7 +166,7 @@ const FeaturesSection = () => {
 
         {/* Bottom CTA */}
         <div className="text-center mt-16">
-          <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-2xl p-8">
+          <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-2xl p-8 relative z-10">
             <h3 className="text-2xl font-bold text-gray-900 mb-4">
               Ready to revolutionize credentialing?
             </h3>
